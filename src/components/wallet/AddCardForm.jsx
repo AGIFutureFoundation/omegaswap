@@ -11,10 +11,20 @@ export default function AddCardForm() {
   const [balance, setBalance] = useState("");
   const [last4, setLast4] = useState("");
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
 
   const submit = async (e) => {
     e.preventDefault();
-    if (!(Number(balance) > 0)) return;
+    const n = Number(balance);
+    if (!(n >= 0.01 && n <= 2000)) {
+      setError("Enter a balance between $0.01 and $2,000.");
+      return;
+    }
+    if (last4 && !/^[A-Za-z0-9]{1,4}$/.test(last4)) {
+      setError("Last 4 must be letters or numbers only.");
+      return;
+    }
+    setError("");
     setBusy(true);
     await base44.entities.GiftCard.create({ brand, balance: Number(balance), last4 });
     await qc.invalidateQueries({ queryKey: ["cards"] });
@@ -37,6 +47,7 @@ export default function AddCardForm() {
       </select>
       <Input type="number" step="0.01" min="0" placeholder="Balance (USD)" value={balance} onChange={(e) => setBalance(e.target.value)} />
       <Input maxLength={4} placeholder="Last 4 of code (optional)" value={last4} onChange={(e) => setLast4(e.target.value)} />
+      {error && <div className="text-sm text-destructive">{error}</div>}
       <Button type="submit" disabled={busy} className="w-full">
         {busy ? "Adding..." : "Add to wallet"}
       </Button>
