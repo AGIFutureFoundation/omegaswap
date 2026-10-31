@@ -1,0 +1,44 @@
+{
+  "description": "Every day, sweeps gift card balances under $5 into each owner's cash wallet",
+  "name": "Daily Balance Sweep",
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "daily_balance_sweep",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "sweep": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "sweepAllSmallBalances"
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Sweep small balances",
+            "description": "Cards under $5 to wallet"
+          }
+        }
+      }
+    ]
+  },
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 3 * * *",
+      "one_time_date": null,
+      "timezone": "America/Los_Angeles",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "never",
+      "ends_on_date": null,
+      "ends_after_count": null
+    }
+  }
+}
