@@ -3,24 +3,27 @@ import { Button } from "@/components/ui/button";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
 import About from "@/components/landing/About";
+import Stats from "@/components/landing/Stats";
+import Stack from "@/components/landing/Stack";
+import Logo from "@/components/Logo";
 
 export default function Landing() {
   return (
     <div className="min-h-screen">
       <header className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-        <div className="font-heading text-lg font-bold tracking-tight">
-          Omega<span className="text-primary">Swap</span>
-        </div>
+        <Logo />
         <div className="flex gap-2">
           <Button asChild variant="ghost" size="sm"><Link to="/login">Log in</Link></Button>
           <Button asChild size="sm"><Link to="/wallet">Open app</Link></Button>
         </div>
       </header>
       <Hero />
+      <Stats />
       <Features />
       <About />
+      <Stack />
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
-        OmegaSwap, a hackathon project. Inventory on the exchange is demo supply.
+        OmegaSwap: one balance, agents that trade it. Hackathon project; exchange inventory is demo supply.
       </footer>
     </div>
   );

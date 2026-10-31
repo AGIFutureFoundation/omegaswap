@@ -4,6 +4,7 @@ import { Wallet, Repeat, Bot, Store, LogOut, Terminal, ShoppingBag, ArrowLeft, S
 import { base44 } from "@/api/base44Client";
 import PullToRefresh from "@/components/PullToRefresh";
 import PageTransition from "@/components/PageTransition";
+import Logo from "@/components/Logo";
 
 // Bottom tabs. `also` = child routes that belong to a tab's history
 const TABS = [
@@ -50,9 +51,7 @@ export default function Layout() {
               </button>
             )}
             {!isRoot && <div className="font-heading text-lg font-bold md:hidden">{title}</div>}
-            <div className={`font-heading text-lg font-bold tracking-tight ${isRoot ? "" : "hidden md:block"}`}>
-              Omega<span className="text-primary">Swap</span>
-            </div>
+            <Logo className={isRoot ? "" : "hidden md:flex"} />
           </div>
           <nav className="flex items-center gap-1">
             <div className="hidden items-center gap-1 md:flex">
