@@ -3,6 +3,7 @@ import { ExternalLink, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { BRANDS, referralUrl } from "@/lib/brands";
 import { useLiveRates } from "@/hooks/useLiveRates";
+import BuyCardButton from "@/components/shop/BuyCardButton";
 
 export default function ShopGrid() {
   const [q, setQ] = useState("");
@@ -22,15 +23,17 @@ export default function ShopGrid() {
         {shown.map((b) => {
           const cost = live[b.name]?.cost ?? b.cost;
           return (
-            <a key={b.name} href={referralUrl(b.name)} target="_blank" rel="noreferrer"
-              className="group rounded-2xl border border-border bg-secondary/40 p-4 transition-colors hover:border-primary">
+            <div key={b.name} className="group rounded-2xl border border-border bg-secondary/40 p-4 transition-colors hover:border-primary">
               <div className="flex items-center justify-between">
                 <span className="font-heading text-lg font-semibold">{b.name}</span>
-                <ExternalLink className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                <a href={referralUrl(b.name)} target="_blank" rel="noreferrer" title="Open on Bitrefill">
+                  <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                </a>
               </div>
               <div className="mt-2 text-sm text-muted-foreground">You pay about {(cost * 100).toFixed(0)}c per $1</div>
               <div className="text-sm text-primary">Pool credits {(b.rate * 100).toFixed(0)}c per $1</div>
-            </a>
+              <BuyCardButton brand={b.name} />
+            </div>
           );
         })}
         {!shown.length && <div className="text-sm text-muted-foreground">No brands match.</div>}
