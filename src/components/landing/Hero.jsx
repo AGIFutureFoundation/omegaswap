@@ -18,7 +18,7 @@ export default function Hero() {
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <Button asChild size="lg"><Link to="/wallet">Open the app <ArrowRight /></Link></Button>
-        <Button asChild size="lg" variant="outline"><a href="#about">About the project</a></Button>
+        <Button asChild size="lg" variant="outline"><Link to="/whitepaper">Read the whitepaper</Link></Button>
       </div>
     </section>
   );

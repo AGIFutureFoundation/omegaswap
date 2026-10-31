@@ -8,6 +8,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Wallet from '@/pages/Wallet';
 import Landing from '@/pages/Landing';
+import Whitepaper from '@/pages/Whitepaper';
 import Pool from '@/pages/Pool';
 import Shop from '@/pages/Shop';
 import Agents from '@/pages/Agents';
@@ -49,6 +50,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/whitepaper" element={<Whitepaper />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
