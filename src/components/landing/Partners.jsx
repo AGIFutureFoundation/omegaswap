@@ -1,5 +1,6 @@
 const GROUPS = [
-  ["Catalog and supply", ["Bitrefill", "Reloadly"]],
+  ["Catalog and supply", ["Bitrefill", "Reloadly", "Startup credit programs", "AI token providers"]],
+  ["Supply roadmap", ["CryptoRefills", "Coinsbee", "Tango Card", "Blackhawk Network", "Raise", "CardCash"]],
   ["Agent intelligence", ["TrueFoundry", "ASI Cloud", "OpenAI"]],
   ["Payments and top-ups", ["NOWPayments", "x402 micro-payments", "Solana Pay"]],
   ["Agent payout chains", ["Solana", "Base", "Polygon", "Arbitrum", "Ethereum", "Optimism", "Avalanche", "BNB"]],
