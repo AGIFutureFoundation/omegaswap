@@ -2,6 +2,7 @@ import BalanceHero from "@/components/wallet/BalanceHero";
 import DealFeed from "@/components/wallet/DealFeed";
 import AddCardForm from "@/components/wallet/AddCardForm";
 import SpendPanel from "@/components/wallet/SpendPanel";
+import TopUpCard from "@/components/wallet/TopUpCard";
 import { useWalletData } from "@/hooks/useWalletData";
 import { deals } from "@/lib/brands";
 
@@ -28,6 +29,7 @@ export default function Wallet() {
             </div>
           ))}
         </div>
+        <TopUpCard />
         <DealFeed deals={feed} />
         <AddCardForm />
         <SpendPanel cards={list.filter((c) => c.balance > 0)} />
