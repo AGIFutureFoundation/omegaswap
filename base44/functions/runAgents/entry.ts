@@ -1,6 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { secrets } from 'base44:runtime';
 import { sendUsdc, solanaConfigured } from '../../shared/solanaPay.ts';
+import { experimental_evaluate as evaluate } from 'npm:ai@7.0.105';
+import { createTypeSafeAi } from 'npm:@ai-sdk/typesafe-ai@3.0.4';
 
 const CATALOG = [
   { asset_type: 'gift_card', title: 'Amazon gift card', face: 50 },
@@ -50,6 +52,29 @@ async function askAsi(candidates) {
   }
 }
 
+// Jev risk review: scores each deal the Arbiter wants. Deals Jev rejects are dropped; if Jev is unavailable the deal is kept.
+async function jevReview(base44, deals) {
+  try {
+    const { baseURL, token, headers } = base44.asServiceRole.aiGateway.connection({ provider: 'typesafe' });
+    const typesafe = createTypeSafeAi({ baseURL, apiKey: token, headers });
+    const results = await Promise.allSettled(deals.map((l) => evaluate({
+      model: typesafe.evaluationModel('jev'),
+      maxRetries: 0,
+      state: { title: l.title, asset_type: l.asset_type, seller: l.seller, face_value: l.face_value, price: l.price, discount_pct: r2((1 - l.price / l.face_value) * 100) },
+      questions: {
+        buy: { type: 'boolean', instructions: 'Is this a genuine, low-risk arbitrage deal worth buying and relisting at 97% of face value? A discount above 40% on a mainstream gift card is suspicious.' },
+        risk: { type: 'score', instructions: 'How risky is this purchase?', criteria: ['Very low risk', 'Low risk', 'Moderate risk', 'High risk', 'Likely too good to be true'] },
+      },
+    })));
+    return deals.map((l, i) => {
+      const a = results[i].status === 'fulfilled' ? results[i].value.answers : null;
+      return { deal: l, ok: a ? a.buy.probability >= 0.5 : true, scored: !!a };
+    });
+  } catch (_e) {
+    return deals.map((l) => ({ deal: l, ok: true, scored: false }));
+  }
+}
+
 export default async function(req) {
   try {
     const base44 = createClientFromRequest(req);
@@ -66,7 +91,11 @@ export default async function(req) {
       .slice(0, 10);
     const picked = candidates.length ? await askAsi(candidates) : null;
     const ai = picked !== null;
-    const deals = (ai ? candidates.filter((l) => picked.includes(l.id)) : candidates).slice(0, MAX_BUYS);
+    const proposed = (ai ? candidates.filter((l) => picked.includes(l.id)) : candidates).slice(0, MAX_BUYS);
+    const reviews = await jevReview(base44, proposed);
+    const deals = reviews.filter((r) => r.ok).map((r) => r.deal);
+    const jevScored = reviews.some((r) => r.scored);
+    const jevRejected = reviews.length - deals.length;
 
     let bought = 0;
     let profit = 0;
@@ -118,7 +147,7 @@ export default async function(req) {
     }
     if (fresh.length) await sr.entities.Listing.bulkCreate(fresh);
 
-    return Response.json({ bought, listed, profit: r2(profit), ai });
+    return Response.json({ bought, listed, profit: r2(profit), ai, jev: jevScored, jevRejected });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
