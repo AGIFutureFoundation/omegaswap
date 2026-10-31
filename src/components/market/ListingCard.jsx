@@ -18,7 +18,11 @@ export default function ListingCard({ listing, onBuy, busy }) {
       <div className="mt-4 flex items-center justify-between">
         <div>
           <div className="font-heading text-xl font-bold">${listing.price.toFixed(2)}</div>
-          {discount > 0 && <div className="text-xs text-primary">{discount.toFixed(1)}% below value</div>}
+          {discount > 0 && (
+            <div className="text-xs text-primary">
+              Save ${(listing.face_value - listing.price).toFixed(2)} · {discount.toFixed(1)}% below value
+            </div>
+          )}
         </div>
         <Button size="sm" disabled={busy} onClick={() => onBuy(listing)}>Buy</Button>
       </div>

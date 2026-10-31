@@ -22,6 +22,7 @@ export default function Market() {
   const listings = useListings();
   const [filter, setFilter] = useState("all");
   const [busy, setBusy] = useState(false);
+  const [sort, setSort] = useState("profit");
 
   const refresh = () => {
     qc.invalidateQueries({ queryKey: ["listings"] });
@@ -54,7 +55,11 @@ export default function Market() {
     setBusy(false);
   };
 
-  const shown = (listings.data || []).filter((l) => filter === "all" || l.asset_type === filter);
+  const save = (l) => l.face_value - l.price;
+  const shown = (listings.data || [])
+    .filter((l) => filter === "all" || l.asset_type === filter)
+    .sort(sort === "profit" ? (a, b) => save(b) - save(a) : (a, b) => a.price - b.price);
+  const bestSave = shown.length ? Math.max(...shown.map(save)) : 0;
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
@@ -76,10 +81,24 @@ export default function Market() {
             {f.label}
           </Button>
         ))}
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value)}
+          className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+          aria-label="Sort listings"
+        >
+          <option value="profit">Biggest savings first</option>
+          <option value="price">Lowest price first</option>
+        </select>
         <Button size="sm" variant="outline" className="ml-auto" disabled={busy} onClick={runAgents}>
           {busy ? <Loader2 className="animate-spin" /> : <Bot />} Run agent round
         </Button>
       </div>
+      {bestSave > 0 && (
+        <div className="rounded-2xl border border-primary/30 bg-primary/5 p-3 text-sm">
+          Best deal here saves <span className="font-semibold text-primary">${bestSave.toFixed(2)}</span> against face value. The Arbiter agent buys these and relists at 97%, paying the sourcing agent a micro fee on each trade.
+        </div>
+      )}
       {listings.isLoading && <div className="text-sm text-muted-foreground">Loading listings...</div>}
       {!listings.isLoading && !shown.length && (
         <div className="text-sm text-muted-foreground">No listings yet. Run an agent round to stock the exchange.</div>
