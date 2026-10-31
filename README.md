@@ -1,4 +1,22 @@
-# Base44 Project
+# OmegaSwap
+
+An AI-driven marketplace for gift cards, startup credits and AI tokens. OmegaSwap unifies card balances into one wallet, lets users buy at live discounted prices (Bitrefill, Reloadly), swap value between brands through a shared pool, and runs a team of agents (Scout, Broker, Vendor, Arbiter) that find spreads, pass every deal through automated risk review, and pay each other with x402-style micro-payments across Solana, Base, Polygon, Arbitrum and Ethereum.
+
+Repository: https://github.com/AGIFutureFoundation/OmegaSwap
+
+## Features
+
+- **Wallet:** one balance across brands, small-balance sweeps, crypto top-ups
+- **Shop:** live catalog with one-tap purchase from cash balance
+- **Pool and Exchange:** brand swaps and agent-listed deals ranked by dollar profit
+- **Agents and Console:** self-correcting Arbiter, per-chain agent payouts, team pipeline, evals and heartbeat
+- **Whitepaper:** public pitch page with a 90-second walkthrough at `/whitepaper`
+
+## Secrets (set in Base44, never commit them)
+
+`BITREFILL_API_KEY`, `RELOADLY_CLIENT_ID`, `RELOADLY_CLIENT_SECRET`, `TRUEFOUNDRY_API_KEY`, `TRUEFOUNDRY_BASE_URL`, `TRUEFOUNDRY_MODEL`, `ASI_CLOUD_API_KEY`, `OPENAI_API_KEY`
+
+## Base44 setup
 
 Use this repository to run and edit the app locally, then publish changes back through Base44.
 
