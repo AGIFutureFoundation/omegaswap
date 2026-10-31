@@ -1,3 +1,4 @@
+import MyDashboard from "@/components/wallet/MyDashboard";
 import BalanceHero from "@/components/wallet/BalanceHero";
 import DealFeed from "@/components/wallet/DealFeed";
 import AddCardForm from "@/components/wallet/AddCardForm";
@@ -9,13 +10,14 @@ import { useWalletData } from "@/hooks/useWalletData";
 import { deals } from "@/lib/brands";
 
 export default function Wallet() {
-  const { cards } = useWalletData();
+  const { cards, me } = useWalletData();
   const list = cards.data || [];
   const total = list.reduce((s, c) => s + c.balance, 0);
   const feed = deals().slice(0, 3).map((d) => ({ id: d.name, title: `${d.name}: buy low, pool high`, agent: "Scout agent", spread: d.spread.toFixed(1) }));
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
+      <MyDashboard uid={me.data?.id} name={me.data?.full_name?.split(" ")[0]} />
       <BalanceHero total={total} cardCount={list.length} saved={0} />
       <div className="grid gap-6 md:grid-cols-2">
         <HarnessCard />

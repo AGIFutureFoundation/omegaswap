@@ -26,7 +26,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 
 // Asks ASI Cloud which candidate deals the Arbiter should buy. Returns a list of ids, or null on any failure.
 async function askAsi(candidates) {
-  const key = secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2');
+  const key = secrets.get('ASI_CLOUD_API_KEY') || secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2');
   if (!key) return null;
   const rows = candidates.map((l) => ({
     id: l.id, title: l.title, seller: l.seller, face: l.face_value, price: l.price,
