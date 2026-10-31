@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { SLIDES } from "@/lib/deckSlides";
 import Walkthrough from "@/components/whitepaper/Walkthrough";
+import StackSponsors from "@/components/whitepaper/StackSponsors";
 import CallToAction from "@/components/whitepaper/CallToAction";
 
 export default function Whitepaper() {
@@ -34,6 +35,7 @@ export default function Whitepaper() {
             </div>
           ))}
         </section>
+        <StackSponsors />
         <CallToAction />
       </main>
     </div>

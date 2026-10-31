@@ -36,7 +36,7 @@ export default function Walkthrough() {
           {playing ? <Pause /> : <Play />} {playing ? "Pause" : t > 0 && t < TOTAL ? "Resume" : "Play"}
         </Button>
         <Button size="icon" variant="ghost" aria-label="Restart" onClick={() => { setT(0); setPlaying(true); }}><RotateCcw /></Button>
-        <div className="ml-auto text-xs text-muted-foreground">{left}s left of 90s</div>
+        <div className="ml-auto text-xs text-muted-foreground">{left}s left of {TOTAL}s</div>
       </div>
     </div>
   );

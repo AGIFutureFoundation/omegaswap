@@ -1,6 +1,6 @@
-import { Github } from "lucide-react";
+import { Github, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GITHUB_URL, QR_URL } from "@/lib/links";
+import { GITHUB_URL, CONTACT_EMAIL, QR_URL } from "@/lib/links";
 
 export default function CallToAction() {
   return (
@@ -13,6 +13,9 @@ export default function CallToAction() {
             <a href={GITHUB_URL} target="_blank" rel="noreferrer"><Github /> View on GitHub</a>
           </Button>
           <div className="mt-3 break-all text-xs text-muted-foreground">{GITHUB_URL}</div>
+          <a href={`mailto:${CONTACT_EMAIL}`} className="mt-2 flex items-center gap-2 text-sm text-primary hover:underline">
+            <Mail className="h-4 w-4" /> {CONTACT_EMAIL}
+          </a>
         </div>
         <img src={QR_URL} alt="QR code linking to the GitHub repository" className="h-40 w-40 rounded-xl bg-white" />
       </div>
