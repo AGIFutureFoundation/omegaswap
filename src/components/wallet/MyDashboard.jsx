@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import BalanceBreakdown from "@/components/wallet/BalanceBreakdown";
 
-export default function MyDashboard({ uid, name }) {
+export default function MyDashboard({ uid, name, cards = [], cardsLoading }) {
   const agents = useQuery({
     queryKey: ["teamAgents", uid],
     enabled: !!uid,
@@ -31,6 +32,7 @@ export default function MyDashboard({ uid, name }) {
           <div className="font-heading text-3xl font-bold text-primary">${Number(earnings.data || 0).toFixed(2)}</div>
         </div>
       </div>
+      <BalanceBreakdown cards={cards} loading={cardsLoading} />
       <div className="grid gap-5 md:grid-cols-2">
         <div>
           <div className="mb-2 text-sm font-medium">Active agents ({(agents.data || []).length})</div>

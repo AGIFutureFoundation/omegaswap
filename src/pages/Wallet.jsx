@@ -17,7 +17,7 @@ export default function Wallet() {
 
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
-      <MyDashboard uid={me.data?.id} name={me.data?.full_name?.split(" ")[0]} />
+      <MyDashboard uid={me.data?.id} name={me.data?.full_name?.split(" ")[0]} cards={list} cardsLoading={cards.isLoading} />
       <BalanceHero total={total} cardCount={list.length} saved={0} />
       <div className="grid gap-6 md:grid-cols-2">
         <HarnessCard />
