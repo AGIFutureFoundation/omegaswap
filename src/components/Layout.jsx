@@ -19,14 +19,16 @@ export default function Layout() {
           <div className="font-heading text-lg font-bold tracking-tight">
             Omega<span className="text-primary">Arbitrage</span>
           </div>
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-0.5 overflow-x-auto sm:gap-1">
             {links.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
                 to={to}
+                title={label}
+                aria-label={label}
                 end
                 className={({ isActive }) =>
-                  `flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-colors ${
+                  `flex items-center gap-2 rounded-full px-3 py-2 text-sm transition-colors sm:px-4 ${
                     isActive ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-foreground"
                   }`
                 }

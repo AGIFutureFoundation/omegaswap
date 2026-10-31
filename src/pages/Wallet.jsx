@@ -1,3 +1,4 @@
+import GettingStarted from "@/components/wallet/GettingStarted";
 import MyDashboard from "@/components/wallet/MyDashboard";
 import BalanceHero from "@/components/wallet/BalanceHero";
 import DealFeed from "@/components/wallet/DealFeed";
@@ -19,8 +20,8 @@ export default function Wallet() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <MyDashboard uid={me.data?.id} name={me.data?.full_name?.split(" ")[0]} cards={list} cardsLoading={cards.isLoading} />
       <BalanceHero total={total} cardCount={list.length} saved={0} />
+      {!cards.isLoading && <GettingStarted hasCards={list.length > 0} />}
       <div className="grid gap-6 md:grid-cols-2">
-        <HarnessCard />
         <div className="rounded-3xl border border-border bg-card p-6">
           <div className="mb-4 font-heading text-lg font-semibold">Your balances</div>
           {cards.isLoading && <div className="text-sm text-muted-foreground">Loading...</div>}
@@ -34,10 +35,11 @@ export default function Wallet() {
             </div>
           ))}
         </div>
-        <TopUpCard />
-        <DealFeed deals={feed} />
         <AddCardForm />
         <SpendPanel cards={list.filter((c) => c.balance > 0)} />
+        <TopUpCard />
+        <DealFeed deals={feed} />
+        <HarnessCard />
         <LinkedApps />
       </div>
     </div>
