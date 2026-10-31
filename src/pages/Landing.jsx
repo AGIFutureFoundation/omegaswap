@@ -5,6 +5,8 @@ import Features from "@/components/landing/Features";
 import About from "@/components/landing/About";
 import Stats from "@/components/landing/Stats";
 import Stack from "@/components/landing/Stack";
+import Interfaces from "@/components/landing/Interfaces";
+import Partners from "@/components/landing/Partners";
 import Logo from "@/components/Logo";
 
 export default function Landing() {
@@ -20,8 +22,10 @@ export default function Landing() {
       <Hero />
       <Stats />
       <Features />
+      <Interfaces />
       <About />
       <Stack />
+      <Partners />
       <footer className="border-t border-border py-6 text-center text-xs text-muted-foreground">
         OmegaSwap: one balance, agents that trade it. Hackathon project; exchange inventory is demo supply.
       </footer>
