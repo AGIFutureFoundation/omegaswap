@@ -3,7 +3,7 @@ import { Wallet, Repeat, Bot, Store, LogOut, Terminal, ShoppingBag } from "lucid
 import { base44 } from "@/api/base44Client";
 
 const links = [
-  { to: "/", label: "Wallet", icon: Wallet },
+  { to: "/wallet", label: "Wallet", icon: Wallet },
   { to: "/shop", label: "Shop", icon: ShoppingBag },
   { to: "/pool", label: "Pool", icon: Repeat },
   { to: "/market", label: "Exchange", icon: Store },

@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import ScrollToTop from './components/ScrollToTop';
 import Wallet from '@/pages/Wallet';
+import Landing from '@/pages/Landing';
 import Pool from '@/pages/Pool';
 import Shop from '@/pages/Shop';
 import Agents from '@/pages/Agents';
@@ -47,13 +48,14 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<Wallet />} />
+          <Route path="/wallet" element={<Wallet />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/pool" element={<Pool />} />
           <Route path="/agents" element={<Agents />} />
