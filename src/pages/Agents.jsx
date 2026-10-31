@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { useWalletData } from "@/hooks/useWalletData";
 import { referralUrl, REFERRAL_CODE } from "@/lib/brands";
 import { useLiveRates } from "@/hooks/useLiveRates";
+import MarketSources from "@/components/agents/MarketSources";
 import SkillCard from "@/components/agents/SkillCard";
 import WalletSetup from "@/components/agents/WalletSetup";
 import ProfitChart from "@/components/agents/ProfitChart";
@@ -23,6 +24,7 @@ export default function Agents() {
       <ProfitChart uid={me.data?.id} />
       <ExportCard uid={me.data?.id} />
       {me.data?.role === "admin" && <WalletSetup />}
+      <MarketSources />
       <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
         <div className="mb-1 font-heading text-lg font-semibold">Spreads right now</div>

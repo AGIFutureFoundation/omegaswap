@@ -1,0 +1,11 @@
+// Researched referral programs and agentic markets. status: "live" = wired into the app, "next" = needs credentials or a partnership.
+export const SOURCES = [
+  { name: "Bitrefill", kind: "Gift card supplier", status: "live", detail: "Live prices feed the spreads. Affiliate pays 1% of referred purchases forever, as Bitrefill store credit.", url: "https://www.bitrefill.com/affiliate/" },
+  { name: "Reloadly", kind: "Gift card API", status: "next", detail: "Gift card API for 5 regions with a second price source for cross-supplier arbitrage. Needs a Reloadly account.", url: "https://www.reloadly.com/products/gift-card-api" },
+  { name: "Coincards", kind: "Gift card supplier", status: "next", detail: "Tiered referral from 0.5% to 2.0% of referred sales, paid in BTC, 12 month attribution window.", url: "https://www.revshare.so/programs/best-crypto-gift-card-affiliate-programs" },
+  { name: "CryptoRefills", kind: "Gift card supplier", status: "next", detail: "6,600+ brands, no account needed. Another price source to compare against Bitrefill.", url: "https://www.cryptorefills.com/en" },
+  { name: "Coinsbee", kind: "Gift card supplier", status: "next", detail: "Publishes no affiliate terms. Rate and payout would need to be negotiated in writing.", url: "https://www.revshare.so/programs/best-crypto-gift-card-affiliate-programs" },
+  { name: "x402 / Coinbase Agent.market", kind: "Agentic market", status: "live", detail: "x402 micro-payments are logged for every agent run. Agent.market is an x402 paywalled agent app store to list agents on.", url: "https://x402.org/" },
+  { name: "Google AP2", kind: "Agent payments protocol", status: "next", detail: "Agent Payments Protocol with x402 support for stablecoin settlement between agents.", url: "https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol" },
+  { name: "OpenAI + Stripe ACP", kind: "Agentic commerce protocol", status: "next", detail: "Lets agents check out with merchants. Requires merchant onboarding.", url: "https://www.crossmint.com/learn/agentic-payments-protocols-compared" },
+];
