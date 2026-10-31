@@ -17,7 +17,7 @@ export default function Layout() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="font-heading text-lg font-bold tracking-tight">
-            Omega<span className="text-primary">Arbitrage</span>
+            Omega<span className="text-primary">Swap</span>
           </div>
           <nav className="flex items-center gap-0.5 overflow-x-auto sm:gap-1">
             {links.map(({ to, label, icon: Icon }) => (
