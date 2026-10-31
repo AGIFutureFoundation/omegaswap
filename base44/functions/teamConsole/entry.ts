@@ -28,6 +28,14 @@ export default async function(req) {
         prompt: `${agent.metaprompt}\n\nUser wallet: ${context}\n\nTask: ${task}`,
       });
       await base44.entities.TeamRun.create({ agent_id: agent.id, agent_name: agent.name, task, output: String(output) });
+      await base44.entities.AgentPayment.create({
+        agent: agent.name,
+        source_agent: 'Console',
+        protocol: 'x402',
+        amount: 0.001,
+        memo: `Console run: ${task.slice(0, 60)}`,
+        status: 'recorded',
+      });
       return Response.json({ output });
     }
 

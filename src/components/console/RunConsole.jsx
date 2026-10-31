@@ -25,6 +25,7 @@ export default function RunConsole() {
     onSuccess: () => {
       setTask("");
       qc.invalidateQueries({ queryKey: ["teamRuns"] });
+      qc.invalidateQueries({ queryKey: ["agentPayments"] });
     },
   });
   const remove = useMutation({
