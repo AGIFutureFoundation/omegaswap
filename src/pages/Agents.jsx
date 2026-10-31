@@ -52,7 +52,14 @@ export default function Agents() {
         {(payments.data || []).map((p) => (
           <div key={p.id} className="flex justify-between border-b border-border py-2 text-sm last:border-0">
             <span>{p.agent} · {p.memo}</span>
-            <span>${p.amount.toFixed(4)} <span className="text-xs text-muted-foreground">{p.protocol}</span></span>
+            <span>
+              ${p.amount.toFixed(4)} <span className="text-xs text-muted-foreground">{p.protocol}</span>{" "}
+              {p.status === "settled" && p.tx_signature ? (
+                <a href={`https://solscan.io/tx/${p.tx_signature}`} target="_blank" rel="noreferrer" className="text-xs text-primary hover:underline">settled</a>
+              ) : (
+                <span className="text-xs text-muted-foreground">{p.status === "failed" ? "failed" : "ledger only"}</span>
+              )}
+            </span>
           </div>
         ))}
       </div>

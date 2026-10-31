@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
+import { sendUsdc, solanaConfigured } from '../../shared/solanaPay.ts';
 
 const CATALOG = [
   { asset_type: 'gift_card', title: 'Amazon gift card', face: 50 },
@@ -41,8 +42,20 @@ export default async function(req) {
       });
       profit += resale - l.price;
       bought += 1;
+      const fee = r2(l.price * AGENT_FEE * 10000) / 10000;
+      let status = 'recorded';
+      let tx_signature;
+      // Real settlement only for admins, so regular users can't spend the platform wallet
+      if (user.role === 'admin' && solanaConfigured()) {
+        try {
+          tx_signature = await sendUsdc(fee);
+          status = 'settled';
+        } catch (_e) {
+          status = 'failed';
+        }
+      }
       await base44.entities.AgentPayment.create({
-        agent: ARBITER, protocol: 'x402', amount: r2(l.price * AGENT_FEE * 10000) / 10000,
+        agent: ARBITER, protocol: 'x402', amount: fee, status, tx_signature,
         memo: `Routed ${l.title} from ${l.seller}`,
       });
     }

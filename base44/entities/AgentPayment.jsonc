@@ -16,6 +16,20 @@
     },
     "memo": {
       "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "recorded",
+        "settled",
+        "failed"
+      ],
+      "default": "recorded",
+      "description": "recorded = ledger only, settled = USDC sent on Solana"
+    },
+    "tx_signature": {
+      "type": "string",
+      "description": "Solana transaction signature when settled"
     }
   },
   "required": [
