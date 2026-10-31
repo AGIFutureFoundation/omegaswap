@@ -21,6 +21,7 @@ const ARBITER = 'Arbiter';
 const AGENT_FEE = 0.001;
 const MAX_OPEN = 40;
 const MAX_BUYS = 5;
+const RELIST = 0.97;
 const ASI_URL = 'https://inference.asicloud.cudos.org/v1/chat/completions';
 const ASI_MODEL = 'asi1-mini';
 
@@ -28,36 +29,40 @@ const r2 = (n) => Math.round(n * 100) / 100;
 
 // Asks ASI Cloud which candidate deals the Arbiter should buy. Returns a list of ids, or null on any failure.
 async function askAsi(candidates) {
+  // Provider chain: TrueFoundry gateway first, then ASI Cloud / OpenAI keys. First one that answers wins.
   const tfKey = secrets.get('TRUEFOUNDRY_API_KEY');
   const tfBase = secrets.get('TRUEFOUNDRY_BASE_URL');
   const tfModel = secrets.get('TRUEFOUNDRY_MODEL');
-  const useTf = !!(tfKey && tfBase && tfModel);
-  const key = useTf ? tfKey : (secrets.get('ASI_CLOUD_API_KEY') || secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2'));
-  if (!key) return null;
-  // TrueFoundry's OpenAI-compatible gateway lives under /api/llm; add it if the saved base URL is just the host
-  const tfRoot = useTf ? tfBase.replace(/\/+$/, '') : '';
-  const url = useTf ? `${tfRoot.includes('/api/llm') ? tfRoot : `${tfRoot}/api/llm`}/chat/completions` : ASI_URL;
-  const model = useTf ? tfModel : ASI_MODEL;
+  const tfRoot = tfBase ? tfBase.replace(/\/+$/, '') : '';
+  const providers = [];
+  if (tfKey && tfBase && tfModel) providers.push({ key: tfKey, model: tfModel, url: `${tfRoot.includes('/api/llm') ? tfRoot : `${tfRoot}/api/llm`}/chat/completions` });
+  const asiKey = secrets.get('ASI_CLOUD_API_KEY');
+  if (asiKey) providers.push({ key: asiKey, model: ASI_MODEL, url: ASI_URL });
+  if (!providers.length) return null;
   const rows = candidates.map((l) => ({
     id: l.id, title: l.title, seller: l.seller, face: l.face_value, price: l.price,
     discount_pct: r2((1 - l.price / l.face_value) * 100),
+    profit_usd: r2(l.face_value * RELIST - l.price),
   }));
-  const prompt = `You are the Arbiter trading agent in a marketplace for gift cards, startup credits and AI tokens. You buy underpriced listings and relist them at 97% of face value. Pick at most ${MAX_BUYS} listings to buy, favouring the biggest profit while keeping a mix of assets. Reply with JSON only, like {"buy":["id1","id2"]}.\nListings: ${JSON.stringify(rows)}`;
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], max_tokens: 300, temperature: 0.2 }),
-      signal: AbortSignal.timeout(15000),
-    });
-    if (!res.ok) return null;
-    const text = (await res.json()).choices?.[0]?.message?.content || '';
-    const match = text.match(/\{[\s\S]*\}/);
-    const ids = match ? JSON.parse(match[0]).buy : null;
-    return Array.isArray(ids) ? ids.map(String) : null;
-  } catch (_e) {
-    return null;
+  const prompt = `You are the Arbiter trading agent in a marketplace for gift cards, startup credits and AI tokens. You buy underpriced listings and relist them at 97% of face value. Pick at most ${MAX_BUYS} listings to buy. Maximise total profit_usd, avoid discounts that look too good to be true, and keep a mix of assets. Reply with JSON only, like {"buy":["id1","id2"]}.\nListings: ${JSON.stringify(rows)}`;
+  for (const p of providers) {
+    try {
+      const res = await fetch(p.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` },
+        body: JSON.stringify({ model: p.model, messages: [{ role: 'user', content: prompt }], max_tokens: 300, temperature: 0.2 }),
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!res.ok) continue;
+      const text = (await res.json()).choices?.[0]?.message?.content || '';
+      const match = text.match(/\{[\s\S]*\}/);
+      const ids = match ? JSON.parse(match[0]).buy : null;
+      if (Array.isArray(ids)) return ids.map(String);
+    } catch (_e) {
+      continue;
+    }
   }
+  return null;
 }
 
 // Jev risk review: scores each deal the Arbiter wants. Deals Jev rejects are dropped; if Jev is unavailable the deal is kept.
@@ -97,9 +102,11 @@ export default async function(req) {
     const { items: states } = await sr.entities.AgentState.filter({ key: 'arbiter' }, { limit: 1 });
     const state = states[0] || await sr.entities.AgentState.create({ key: 'arbiter', max_ratio: 0.9, runs: 0, rejection_rate: 0 });
     const maxRatio = state.max_ratio ?? 0.9;
+    // Floor skips "too good to be true" discounts that risk review keeps rejecting; rank by dollar profit, not percentage
+    const minRatio = state.min_ratio ?? 0.5;
     const candidates = open
-      .filter((l) => l.seller !== ARBITER && l.price / l.face_value < maxRatio)
-      .sort((a, b) => a.price / a.face_value - b.price / b.face_value)
+      .filter((l) => l.seller !== ARBITER && l.price / l.face_value < maxRatio && l.price / l.face_value >= minRatio)
+      .sort((a, b) => (b.face_value * RELIST - b.price) - (a.face_value * RELIST - a.price))
       .slice(0, 10);
     const picked = candidates.length ? await askAsi(candidates) : null;
     const ai = picked !== null;
@@ -164,11 +171,13 @@ export default async function(req) {
     // Learn: heavy rejections mean "too good to be true" deals, so tighten; no candidates at all means too strict, so loosen
     const rejRate = reviews.length ? jevRejected / reviews.length : 0;
     let next = maxRatio;
+    let nextMin = minRatio;
     let why = 'no change';
-    if (jevScored && rejRate >= 0.5) { next = Math.max(0.6, maxRatio - 0.02); why = 'tightened: risk review rejected most deals'; }
-    else if (!candidates.length) { next = Math.min(0.95, maxRatio + 0.01); why = 'loosened: no candidate deals found'; }
+    // Rejected deals were the deepest discounts: raise the floor (and restore the ceiling) instead of shrinking the ceiling, which only chased more suspicious deals
+    if (jevScored && rejRate >= 0.5) { nextMin = Math.min(0.9, minRatio + 0.03); next = Math.max(maxRatio, 0.9); why = 'skipping deeper discounts: risk review rejected most deals'; }
+    else if (!candidates.length) { next = Math.min(0.95, maxRatio + 0.01); nextMin = Math.max(0.5, minRatio - 0.02); why = 'loosened: no candidate deals found'; }
     await sr.entities.AgentState.update(state.id, {
-      max_ratio: r2(next), runs: (state.runs || 0) + 1, rejection_rate: r2(rejRate), last_adjustment: why,
+      max_ratio: r2(next), min_ratio: r2(nextMin), runs: (state.runs || 0) + 1, rejection_rate: r2(rejRate), last_adjustment: why,
     });
 
     return Response.json({ bought, listed, profit: r2(profit), ai, jev: jevScored, jevRejected, maxRatio: r2(next), adjustment: why });

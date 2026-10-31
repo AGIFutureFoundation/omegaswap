@@ -10,6 +10,10 @@
       "type": "number",
       "description": "Arbiter only considers listings priced below this share of face value"
     },
+    "min_ratio": {
+      "type": "number",
+      "description": "Arbiter skips listings priced below this share of face value (too good to be true)"
+    },
     "runs": {
       "type": "number"
     },
