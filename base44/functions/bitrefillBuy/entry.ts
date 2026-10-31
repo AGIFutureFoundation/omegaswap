@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { secrets } from 'base44:runtime';
 import { getBalance } from '../../shared/ledger.ts';
+import { markCardVerified } from '../../shared/sweep.ts';
 
 const PRODUCTS = {
   "Amazon": "amazon-usa",
@@ -66,7 +67,8 @@ export default async function(req) {
       const oRes = await fetch(`https://api.bitrefill.com/v2/orders/${orderId}`, { headers, signal: AbortSignal.timeout(15000) });
       const info = (await oRes.json())?.data?.redemption_info || {};
       const code = String(info.code || '');
-      await base44.entities.GiftCard.create({ brand, balance: face, last4: code.slice(-4) });
+      const card = await base44.entities.GiftCard.create({ brand, balance: face, last4: code.slice(-4) });
+      await markCardVerified(sr, card, user.id);
       return Response.json({ ok: true, brand, value: face, price, code, link: info.link || null, pin: info.pin || null });
     } catch (e) {
       await refund('purchase failed');

@@ -13,7 +13,16 @@ export default async function(req) {
     const apiKey = secrets.get('NOWPAYMENTS_API_KEY');
     if (!apiKey) return Response.json({ error: 'Crypto payments are not configured yet' }, { status: 503 });
 
-    const appUrl = req.headers.get('X-Base44-App-Url') || '';
+    // Only accept the app's own origin: a configured APP_URL, or a platform-hosted https origin
+    let appUrl = '';
+    try {
+      const u = new URL(req.headers.get('X-Base44-App-Url') || '');
+      const configured = secrets.get('APP_URL');
+      if (u.protocol === 'https:' && ((configured && u.origin === new URL(configured).origin) || u.hostname.endsWith('.base44.app'))) {
+        appUrl = u.origin;
+      }
+    } catch (_e) { /* invalid URL */ }
+    if (!appUrl) return Response.json({ error: 'Could not determine the app URL' }, { status: 400 });
     const deposit = await base44.asServiceRole.entities.Deposit.create({ user_id: user.id, amount: usd, status: 'pending' });
 
     const res = await fetch('https://api.nowpayments.io/v1/invoice', {

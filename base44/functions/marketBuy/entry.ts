@@ -1,5 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { getBalance } from '../../shared/ledger.ts';
+import { markCardVerified } from '../../shared/sweep.ts';
 
 export default async function(req) {
   try {
@@ -39,7 +40,8 @@ export default async function(req) {
       return Response.json({ error: 'Not enough balance' }, { status: 402 });
     }
     // Delivered into the buyer's wallet as a balance they own
-    await base44.entities.GiftCard.create({ brand: listing.title, balance: listing.face_value });
+    const card = await base44.entities.GiftCard.create({ brand: listing.title, balance: listing.face_value });
+    await markCardVerified(sr, card, user.id);
 
     return Response.json({ ok: true, balance: balance - listing.price });
   } catch (error) {
