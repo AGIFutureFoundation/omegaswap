@@ -34,7 +34,9 @@ async function askAsi(candidates) {
   const useTf = !!(tfKey && tfBase && tfModel);
   const key = useTf ? tfKey : (secrets.get('ASI_CLOUD_API_KEY') || secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2'));
   if (!key) return null;
-  const url = useTf ? `${tfBase.replace(/\/+$/, '')}/chat/completions` : ASI_URL;
+  // TrueFoundry's OpenAI-compatible gateway lives under /api/llm; add it if the saved base URL is just the host
+  const tfRoot = useTf ? tfBase.replace(/\/+$/, '') : '';
+  const url = useTf ? `${tfRoot.includes('/api/llm') ? tfRoot : `${tfRoot}/api/llm`}/chat/completions` : ASI_URL;
   const model = useTf ? tfModel : ASI_MODEL;
   const rows = candidates.map((l) => ({
     id: l.id, title: l.title, seller: l.seller, face: l.face_value, price: l.price,
