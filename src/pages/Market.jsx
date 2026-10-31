@@ -4,6 +4,7 @@ import { Bot, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import OptionSelect from "@/components/ui/option-select";
 import { useWalletData } from "@/hooks/useWalletData";
 import { useBalance, useListings } from "@/hooks/useMarket";
 import ListingCard from "@/components/market/ListingCard";
@@ -81,15 +82,13 @@ export default function Market() {
             {f.label}
           </Button>
         ))}
-        <select
+        <OptionSelect
+          label="Sort listings"
+          className="w-auto text-xs md:h-8"
           value={sort}
-          onChange={(e) => setSort(e.target.value)}
-          className="h-8 rounded-md border border-input bg-background px-2 text-xs"
-          aria-label="Sort listings"
-        >
-          <option value="profit">Biggest savings first</option>
-          <option value="price">Lowest price first</option>
-        </select>
+          onChange={setSort}
+          options={[{ value: "profit", label: "Biggest savings first" }, { value: "price", label: "Lowest price first" }]}
+        />
         <Button size="sm" variant="outline" className="ml-auto" disabled={busy} onClick={runAgents}>
           {busy ? <Loader2 className="animate-spin" /> : <Bot />} Run agent round
         </Button>

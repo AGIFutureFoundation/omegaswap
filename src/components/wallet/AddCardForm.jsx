@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { BRANDS } from "@/lib/brands";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import OptionSelect from "@/components/ui/option-select";
 
 export default function AddCardForm() {
   const qc = useQueryClient();
@@ -36,15 +37,7 @@ export default function AddCardForm() {
   return (
     <form onSubmit={submit} className="rounded-3xl border border-border bg-card p-6 space-y-3">
       <div className="font-heading text-lg font-semibold">Add a card balance</div>
-      <select
-        value={brand}
-        onChange={(e) => setBrand(e.target.value)}
-        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-      >
-        {BRANDS.map((b) => (
-          <option key={b.name}>{b.name}</option>
-        ))}
-      </select>
+      <OptionSelect label="Brand" value={brand} onChange={setBrand} options={BRANDS.map((b) => ({ value: b.name, label: b.name }))} />
       <Input type="number" step="0.01" min="0" placeholder="Balance (USD)" value={balance} onChange={(e) => setBalance(e.target.value)} />
       <Input maxLength={4} placeholder="Last 4 of code (optional)" value={last4} onChange={(e) => setLast4(e.target.value)} />
       {error && <div className="text-sm text-destructive">{error}</div>}

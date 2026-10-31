@@ -4,10 +4,10 @@ import { Link2, Trash2 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import OptionSelect from "@/components/ui/option-select";
 
 const CHAINS = ["solana", "base", "polygon", "arbitrum", "ethereum"];
 const AGENTS = ["Arbiter", "Scout", "Broker", "Vendor", "Hermes Scout", "Hermes Courier", "Hermes Sweeper", "Omega Strategist", "Omega Risk", "Omega Executor"];
-const selectCls = "h-9 rounded-md border border-input bg-card px-2 text-sm";
 
 export default function AgentWallets() {
   const qc = useQueryClient();
@@ -34,12 +34,8 @@ export default function AgentWallets() {
         Give each agent its own payout wallet on Solana, Base, Polygon, Arbitrum or Ethereum. x402 payments are routed to that wallet and labeled with the chain. Only Solana settles on-chain right now; the other chains are recorded as ledger entries.
       </p>
       <div className="flex flex-wrap gap-2">
-        <select className={selectCls} value={agent} onChange={(e) => setAgent(e.target.value)}>
-          {AGENTS.map((a) => <option key={a}>{a}</option>)}
-        </select>
-        <select className={selectCls} value={chain} onChange={(e) => setChain(e.target.value)}>
-          {CHAINS.map((c) => <option key={c}>{c}</option>)}
-        </select>
+        <OptionSelect label="Agent" className="w-auto" value={agent} onChange={setAgent} options={AGENTS.map((a) => ({ value: a, label: a }))} />
+        <OptionSelect label="Chain" className="w-auto" value={chain} onChange={setChain} options={CHAINS.map((c) => ({ value: c, label: c }))} />
         <Input className="min-w-[200px] flex-1" placeholder="Payout address" value={address} onChange={(e) => setAddress(e.target.value)} />
         <Button disabled={address.trim().length < 20 || add.isPending} onClick={() => add.mutate()}>Save wallet</Button>
       </div>
@@ -48,7 +44,7 @@ export default function AgentWallets() {
           <span className="font-medium">{w.agent}</span>
           <span className="rounded-full border border-border px-2 text-xs">{w.chain}</span>
           <span className="min-w-0 flex-1 truncate text-muted-foreground">{w.address}</span>
-          <button onClick={() => remove.mutate(w.id)} aria-label="Remove wallet"><Trash2 className="h-4 w-4" /></button>
+          <button className="flex min-h-9 min-w-9 select-none items-center justify-center" onClick={() => remove.mutate(w.id)} aria-label="Remove wallet"><Trash2 className="h-4 w-4" /></button>
         </div>
       ))}
       {!(wallets.data || []).length && <div className="text-sm text-muted-foreground">No wallets yet. Agents without one use the default Solana treasury.</div>}

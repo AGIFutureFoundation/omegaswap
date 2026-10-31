@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { applyOptimistic, rollback } from "@/lib/optimistic";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,16 +31,34 @@ export default function SpendPanel({ cards }) {
 
   const toggle = (id) => setOff((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]));
 
-  const spend = async (e) => {
+  const pay = useMutation({
+    mutationFn: async ({ parts, amt, note }) => {
+      await Promise.all(parts.map((p) => base44.entities.GiftCard.update(p.card.id, { balance: +(p.card.balance - p.take).toFixed(2) })));
+      const split = parts.map((p) => `${p.card.brand} $${p.take.toFixed(2)}`).join(", ");
+      await base44.entities.Trade.create({ kind: "spend", amount: amt, fee: 0, note: `${note}${note ? " | " : ""}Paid with ${split}` });
+    },
+    onMutate: ({ parts, amt, note }) =>
+      applyOptimistic(qc, [
+        [["cards"], (old) => old.map((c) => {
+          const p = parts.find((x) => x.card.id === c.id);
+          return p ? { ...c, balance: +(c.balance - p.take).toFixed(2) } : c;
+        })],
+        [["trades"], (old) => [{ id: "optimistic-trade", kind: "spend", amount: amt, note }, ...old]],
+      ]),
+    onError: (e, v, snaps) => {
+      rollback(qc, snaps);
+      toast.error("Payment failed. Your balances were restored.");
+    },
+    onSuccess: (d, v) => toast.success(`$${v.amt.toFixed(2)} paid using ${v.parts.length} card${v.parts.length === 1 ? "" : "s"}`),
+    onSettled: () => qc.invalidateQueries(),
+  });
+
+  const spend = (e) => {
     e.preventDefault();
     if (!(amt > 0) || short > 0) return toast.error("Amount exceeds the selected cards");
-    await Promise.all(parts.map((p) => base44.entities.GiftCard.update(p.card.id, { balance: +(p.card.balance - p.take).toFixed(2) })));
-    const split = parts.map((p) => `${p.card.brand} $${p.take.toFixed(2)}`).join(", ");
-    await base44.entities.Trade.create({ kind: "spend", amount: amt, fee: 0, note: `${note}${note ? " | " : ""}Paid with ${split}` });
-    await qc.invalidateQueries();
+    pay.mutate({ parts, amt, note });
     setAmount("");
     setNote("");
-    toast.success(`$${amt.toFixed(2)} paid using ${parts.length} card${parts.length === 1 ? "" : "s"}`);
   };
 
   return (
@@ -64,7 +83,7 @@ export default function SpendPanel({ cards }) {
           {short > 0 && <div className="mt-1 text-destructive">Short by ${short.toFixed(2)}</div>}
         </div>
       )}
-      <Button type="submit" className="w-full" disabled={!usable.length || short > 0 || !(amt > 0)}>Pay</Button>
+      <Button type="submit" className="w-full" disabled={!usable.length || short > 0 || !(amt > 0) || pay.isPending}>Pay</Button>
     </form>
   );
 }

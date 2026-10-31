@@ -110,5 +110,28 @@
 
   body {
     @apply bg-background text-foreground font-body;
+    overscroll-behavior: none;
+  }
+
+  .dark {
+    --background: 222 28% 6%;
+    --foreground: 210 20% 96%;
+    --card: 222 24% 9%;
+    --card-foreground: 210 20% 96%;
+    --popover: 222 24% 9%;
+    --popover-foreground: 210 20% 96%;
+    --primary: 158 72% 52%;
+    --primary-foreground: 222 28% 6%;
+    --secondary: 222 20% 14%;
+    --secondary-foreground: 210 20% 96%;
+    --muted: 222 20% 13%;
+    --muted-foreground: 215 14% 62%;
+    --accent: 222 20% 16%;
+    --accent-foreground: 210 20% 96%;
+    --destructive: 0 62.8% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 222 18% 17%;
+    --input: 222 18% 17%;
+    --ring: 158 72% 52%;
   }
 }
