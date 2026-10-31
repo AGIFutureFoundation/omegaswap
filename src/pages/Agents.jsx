@@ -1,9 +1,11 @@
 import { ExternalLink } from "lucide-react";
 import { useWalletData } from "@/hooks/useWalletData";
-import { deals, referralUrl, REFERRAL_CODE } from "@/lib/brands";
+import { referralUrl, REFERRAL_CODE } from "@/lib/brands";
+import { useLiveRates } from "@/hooks/useLiveRates";
 
 export default function Agents() {
   const { trades, payments } = useWalletData();
+  const rates = useLiveRates();
   const feeTotal = (trades.data || []).reduce((s, t) => s + (t.fee || 0), 0);
   const microTotal = (payments.data || []).reduce((s, p) => s + p.amount, 0);
 
@@ -17,16 +19,24 @@ export default function Agents() {
       <div className="rounded-3xl border border-border bg-card p-6">
         <div className="mb-1 font-heading text-lg font-semibold">Spreads right now</div>
         <p className="mb-3 text-sm text-muted-foreground">
-          Indicative rates: buy on Bitrefill below the pool's credit rate. Links use referral code {REFERRAL_CODE}.
+          Live Bitrefill prices (USD cards, refreshed every minute) vs the pool's credit rate. Links use referral code {REFERRAL_CODE}.
         </p>
-        {deals().map((d) => (
+        {rates.isLoading && <div className="py-4 text-sm text-muted-foreground">Loading live rates...</div>}
+        {rates.isError && <div className="py-4 text-sm text-destructive">Could not load live Bitrefill rates.</div>}
+        {rates.data?.rows.map((d) => (
           <div key={d.name} className="flex items-center justify-between border-b border-border py-3 last:border-0">
             <div>
               <div className="font-medium">{d.name}</div>
-              <div className="text-sm text-muted-foreground">Cost {(d.cost * 100).toFixed(0)}c, pool credits {(d.rate * 100).toFixed(0)}c per $1</div>
+              <div className="text-sm text-muted-foreground">
+                {d.cost === null
+                  ? "Not available via the Bitrefill API"
+                  : `Cost ${(d.cost * 100).toFixed(1)}c (based on $${d.face} card), pool credits ${(d.rate * 100).toFixed(0)}c per $1`}
+              </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="font-heading font-bold text-primary">+{d.spread.toFixed(1)}%</span>
+              <span className={`font-heading font-bold ${d.spread > 0 ? "text-primary" : "text-muted-foreground"}`}>
+                {d.spread === null ? "n/a" : `${d.spread > 0 ? "+" : ""}${d.spread.toFixed(1)}%`}
+              </span>
               <a href={referralUrl(d.name)} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-sm text-primary hover:underline">
                 Buy <ExternalLink className="h-3 w-3" />
               </a>
