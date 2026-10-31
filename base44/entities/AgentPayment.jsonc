@@ -30,6 +30,18 @@
     "tx_signature": {
       "type": "string",
       "description": "Solana transaction signature when settled"
+    },
+    "source_agent": {
+      "type": "string",
+      "description": "Agent that sourced the deal (Scout, Broker or Vendor)"
+    },
+    "profit": {
+      "type": "number",
+      "description": "USD profit captured on the trade"
+    },
+    "spread_pct": {
+      "type": "number",
+      "description": "Profit as a percent of the purchase price"
     }
   },
   "required": [

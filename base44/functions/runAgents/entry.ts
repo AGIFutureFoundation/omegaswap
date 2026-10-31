@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
+import { secrets } from 'base44:runtime';
 import { sendUsdc, solanaConfigured } from '../../shared/solanaPay.ts';
 
 const CATALOG = [
@@ -17,8 +18,37 @@ const SELLERS = ['Scout', 'Broker', 'Vendor'];
 const ARBITER = 'Arbiter';
 const AGENT_FEE = 0.001;
 const MAX_OPEN = 40;
+const MAX_BUYS = 5;
+const ASI_URL = 'https://inference.asicloud.cudos.org/v1/chat/completions';
+const ASI_MODEL = 'asi1-mini';
 
 const r2 = (n) => Math.round(n * 100) / 100;
+
+// Asks ASI Cloud which candidate deals the Arbiter should buy. Returns a list of ids, or null on any failure.
+async function askAsi(candidates) {
+  const key = secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2');
+  if (!key) return null;
+  const rows = candidates.map((l) => ({
+    id: l.id, title: l.title, seller: l.seller, face: l.face_value, price: l.price,
+    discount_pct: r2((1 - l.price / l.face_value) * 100),
+  }));
+  const prompt = `You are the Arbiter trading agent in a marketplace for gift cards, startup credits and AI tokens. You buy underpriced listings and relist them at 97% of face value. Pick at most ${MAX_BUYS} listings to buy, favouring the biggest profit while keeping a mix of assets. Reply with JSON only, like {"buy":["id1","id2"]}.\nListings: ${JSON.stringify(rows)}`;
+  try {
+    const res = await fetch(ASI_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model: ASI_MODEL, messages: [{ role: 'user', content: prompt }], max_tokens: 300, temperature: 0.2 }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!res.ok) return null;
+    const text = (await res.json()).choices?.[0]?.message?.content || '';
+    const match = text.match(/\{[\s\S]*\}/);
+    const ids = match ? JSON.parse(match[0]).buy : null;
+    return Array.isArray(ids) ? ids.map(String) : null;
+  } catch (_e) {
+    return null;
+  }
+}
 
 export default async function(req) {
   try {
@@ -29,10 +59,17 @@ export default async function(req) {
     const sr = base44.asServiceRole;
     const { items: open } = await sr.entities.Listing.filter({ status: 'open' }, { sort: '-created_date', limit: 100 });
 
-    // 1. Arbiter agent buys underpriced listings from other agents and relists at a profit
+    // 1. Arbiter agent: ASI Cloud picks which underpriced listings to buy (rule-based fallback if it is unavailable)
+    const candidates = open
+      .filter((l) => l.seller !== ARBITER && l.price / l.face_value < 0.9)
+      .sort((a, b) => a.price / a.face_value - b.price / b.face_value)
+      .slice(0, 10);
+    const picked = candidates.length ? await askAsi(candidates) : null;
+    const ai = picked !== null;
+    const deals = (ai ? candidates.filter((l) => picked.includes(l.id)) : candidates).slice(0, MAX_BUYS);
+
     let bought = 0;
     let profit = 0;
-    const deals = open.filter((l) => l.seller !== ARBITER && l.price / l.face_value < 0.9).slice(0, 5);
     if (deals.length) {
       await Promise.all(deals.map((l) => sr.entities.Listing.update(l.id, { status: 'sold', buyer: ARBITER })));
       await sr.entities.Listing.bulkCreate(deals.map((l) => ({
@@ -42,7 +79,8 @@ export default async function(req) {
     }
     const payments = [];
     for (const l of deals) {
-      profit += r2(l.face_value * 0.97) - l.price;
+      const dealProfit = r2(l.face_value * 0.97 - l.price);
+      profit += dealProfit;
       bought += 1;
       const fee = r2(l.price * AGENT_FEE * 10000) / 10000;
       let status = 'recorded';
@@ -58,6 +96,7 @@ export default async function(req) {
       }
       payments.push({
         agent: ARBITER, protocol: 'x402', amount: fee, status, tx_signature,
+        source_agent: l.seller, profit: dealProfit, spread_pct: r2((dealProfit / l.price) * 100),
         memo: `Routed ${l.title} from ${l.seller}`,
       });
     }
@@ -79,7 +118,7 @@ export default async function(req) {
     }
     if (fresh.length) await sr.entities.Listing.bulkCreate(fresh);
 
-    return Response.json({ bought, listed, profit: r2(profit) });
+    return Response.json({ bought, listed, profit: r2(profit), ai });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

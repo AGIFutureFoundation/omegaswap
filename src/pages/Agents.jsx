@@ -4,6 +4,7 @@ import { referralUrl, REFERRAL_CODE } from "@/lib/brands";
 import { useLiveRates } from "@/hooks/useLiveRates";
 import SkillCard from "@/components/agents/SkillCard";
 import WalletSetup from "@/components/agents/WalletSetup";
+import ProfitChart from "@/components/agents/ProfitChart";
 
 export default function Agents() {
   const { me, trades, payments } = useWalletData();
@@ -18,6 +19,7 @@ export default function Agents() {
         <Stat label="Pool fees earned" value={`$${feeTotal.toFixed(2)}`} />
         <Stat label="Agent micro payments (x402 ledger)" value={`$${microTotal.toFixed(4)}`} />
       </div>
+      <ProfitChart uid={me.data?.id} />
       {me.data?.role === "admin" && <WalletSetup />}
       <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
