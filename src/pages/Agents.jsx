@@ -2,6 +2,7 @@ import { ExternalLink } from "lucide-react";
 import { useWalletData } from "@/hooks/useWalletData";
 import { referralUrl, REFERRAL_CODE } from "@/lib/brands";
 import { useLiveRates } from "@/hooks/useLiveRates";
+import SkillCard from "@/components/agents/SkillCard";
 
 export default function Agents() {
   const { trades, payments } = useWalletData();
@@ -16,6 +17,7 @@ export default function Agents() {
         <Stat label="Pool fees earned" value={`$${feeTotal.toFixed(2)}`} />
         <Stat label="Agent micro payments (x402 ledger)" value={`$${microTotal.toFixed(4)}`} />
       </div>
+      <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
         <div className="mb-1 font-heading text-lg font-semibold">Spreads right now</div>
         <p className="mb-3 text-sm text-muted-foreground">
