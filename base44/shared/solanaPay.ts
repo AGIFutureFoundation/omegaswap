@@ -16,10 +16,10 @@ export function solanaConfigured(): boolean {
 }
 
 // Sends USDC from the platform wallet to the agent treasury. Returns the transaction signature.
-export async function sendUsdc(amountUsd: number): Promise<string> {
+export async function sendUsdc(amountUsd: number, toAddress?: string): Promise<string> {
   if (!(amountUsd > 0) || amountUsd > MAX_PER_TRANSFER_USD) throw new Error('Transfer amount out of range');
   const payer = Keypair.fromSecretKey(bs58.decode(secrets.get('SOLANA_WALLET_PRIVATE_KEY')));
-  const to = new PublicKey(secrets.get('AGENT_PAYOUT_ADDRESS'));
+  const to = new PublicKey(toAddress || secrets.get('AGENT_PAYOUT_ADDRESS'));
   const mint = new PublicKey(USDC_MINT);
   const connection = new Connection(secrets.get('SOLANA_RPC_URL') || 'https://api.mainnet-beta.solana.com', 'confirmed');
 

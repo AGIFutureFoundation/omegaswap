@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
+import { loadWallets, walletFor } from '../../shared/chains.ts';
 
 export default async function(req) {
   try {
@@ -28,8 +29,11 @@ export default async function(req) {
         prompt: `${agent.metaprompt}\n\nUser wallet: ${context}\n\nTask: ${task}`,
       });
       await base44.entities.TeamRun.create({ agent_id: agent.id, agent_name: agent.name, task, output: String(output) });
+      const w = walletFor(await loadWallets(base44.asServiceRole), agent.name);
       await base44.entities.AgentPayment.create({
         agent: agent.name,
+        chain: w.chain,
+        payout_address: w.address || undefined,
         source_agent: 'Console',
         protocol: 'x402',
         amount: 0.001,
@@ -82,7 +86,8 @@ export default async function(req) {
         handoff = output;
       }
       await base44.entities.TeamRun.bulkCreate(steps.map((s) => ({ agent_id: s.agent_id, agent_name: s.agent_name, task: `[Team] ${task}`, output: s.output })));
-      await base44.entities.AgentPayment.bulkCreate(steps.map((s) => ({ agent: s.agent_name, source_agent: 'Console', protocol: 'x402', amount: 0.001, memo: `Team run: ${task.slice(0, 60)}`, status: 'recorded' })));
+      const wallets = await loadWallets(base44.asServiceRole);
+      await base44.entities.AgentPayment.bulkCreate(steps.map((s) => ({ agent: s.agent_name, chain: walletFor(wallets, s.agent_name).chain, payout_address: walletFor(wallets, s.agent_name).address || undefined, source_agent: 'Console', protocol: 'x402', amount: 0.001, memo: `Team run: ${task.slice(0, 60)}`, status: 'recorded' })));
       return Response.json({ steps });
     }
 

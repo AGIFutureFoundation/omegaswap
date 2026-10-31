@@ -5,6 +5,7 @@ import { useLiveRates } from "@/hooks/useLiveRates";
 import MarketSources from "@/components/agents/MarketSources";
 import SkillCard from "@/components/agents/SkillCard";
 import WalletSetup from "@/components/agents/WalletSetup";
+import AgentWallets from "@/components/agents/AgentWallets";
 import ProfitChart from "@/components/agents/ProfitChart";
 import ExportCard from "@/components/agents/ExportCard";
 
@@ -24,6 +25,7 @@ export default function Agents() {
       <ProfitChart uid={me.data?.id} />
       <ExportCard uid={me.data?.id} />
       {me.data?.role === "admin" && <WalletSetup />}
+      {me.data?.role === "admin" && <AgentWallets />}
       <MarketSources />
       <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
@@ -59,7 +61,7 @@ export default function Agents() {
         {!(payments.data || []).length && <div className="text-sm text-muted-foreground">Payments appear here after each pool swap.</div>}
         {(payments.data || []).map((p) => (
           <div key={p.id} className="flex justify-between border-b border-border py-2 text-sm last:border-0">
-            <span>{p.agent} · {p.memo}</span>
+            <span>{p.agent} · {p.memo}{p.chain && <span className="ml-2 rounded-full border border-border px-2 text-xs">{p.chain}</span>}</span>
             <span>
               ${p.amount.toFixed(4)} <span className="text-xs text-muted-foreground">{p.protocol}</span>{" "}
               {p.status === "settled" && p.tx_signature ? (

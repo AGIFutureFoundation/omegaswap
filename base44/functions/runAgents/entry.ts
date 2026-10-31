@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.54';
 import { secrets } from 'base44:runtime';
 import { sendUsdc, solanaConfigured } from '../../shared/solanaPay.ts';
+import { loadWallets, walletFor } from '../../shared/chains.ts';
 import { experimental_evaluate as evaluate } from 'npm:ai@7.0.105';
 import { createTypeSafeAi } from 'npm:@ai-sdk/typesafe-ai@3.0.4';
 
@@ -128,7 +129,10 @@ export default async function(req) {
       })));
     }
     const payments = [];
+    // Each seller agent is paid on its own chain and wallet; the Arbiter pays the agent that sourced the deal
+    const wallets = await loadWallets(sr);
     for (const l of deals) {
+      const w = walletFor(wallets, l.seller);
       const dealProfit = r2(l.face_value * 0.97 - l.price);
       profit += dealProfit;
       bought += 1;
@@ -136,16 +140,17 @@ export default async function(req) {
       let status = 'recorded';
       let tx_signature;
       // Real settlement only for admins, so regular users can't spend the platform wallet
-      if (user.role === 'admin' && solanaConfigured()) {
+      // Only Solana settles on-chain for now; other chains are recorded with their wallet for later settlement
+      if (user.role === 'admin' && w.chain === 'solana' && solanaConfigured()) {
         try {
-          tx_signature = await sendUsdc(fee);
+          tx_signature = await sendUsdc(fee, w.address || undefined);
           status = 'settled';
         } catch (_e) {
           status = 'failed';
         }
       }
       payments.push({
-        agent: ARBITER, protocol: 'x402', amount: fee, status, tx_signature,
+        agent: ARBITER, protocol: 'x402', amount: fee, status, tx_signature, chain: w.chain, payout_address: w.address || undefined,
         source_agent: l.seller, profit: dealProfit, spread_pct: r2((dealProfit / l.price) * 100),
         memo: `Routed ${l.title} from ${l.seller}`,
       });

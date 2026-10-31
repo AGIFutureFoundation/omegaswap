@@ -25,11 +25,11 @@
         "failed"
       ],
       "default": "recorded",
-      "description": "recorded = ledger only, settled = USDC sent on Solana"
+      "description": "recorded = ledger only, settled = USDC sent on-chain"
     },
     "tx_signature": {
       "type": "string",
-      "description": "Solana transaction signature when settled"
+      "description": "Transaction signature when settled"
     },
     "source_agent": {
       "type": "string",
@@ -42,6 +42,14 @@
     "spread_pct": {
       "type": "number",
       "description": "Profit as a percent of the purchase price"
+    },
+    "chain": {
+      "type": "string",
+      "description": "Chain the agent's wallet is on"
+    },
+    "payout_address": {
+      "type": "string",
+      "description": "Wallet address the payment is routed to"
     }
   },
   "required": [
