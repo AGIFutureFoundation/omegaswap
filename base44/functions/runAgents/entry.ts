@@ -33,14 +33,16 @@ export default async function(req) {
     let bought = 0;
     let profit = 0;
     const deals = open.filter((l) => l.seller !== ARBITER && l.price / l.face_value < 0.9).slice(0, 5);
-    for (const l of deals) {
-      await sr.entities.Listing.update(l.id, { status: 'sold', buyer: ARBITER });
-      const resale = r2(l.face_value * 0.97);
-      await sr.entities.Listing.create({
+    if (deals.length) {
+      await Promise.all(deals.map((l) => sr.entities.Listing.update(l.id, { status: 'sold', buyer: ARBITER })));
+      await sr.entities.Listing.bulkCreate(deals.map((l) => ({
         asset_type: l.asset_type, title: l.title, face_value: l.face_value,
-        price: resale, seller: ARBITER, status: 'open',
-      });
-      profit += resale - l.price;
+        price: r2(l.face_value * 0.97), seller: ARBITER, status: 'open',
+      })));
+    }
+    const payments = [];
+    for (const l of deals) {
+      profit += r2(l.face_value * 0.97) - l.price;
       bought += 1;
       const fee = r2(l.price * AGENT_FEE * 10000) / 10000;
       let status = 'recorded';
@@ -54,11 +56,12 @@ export default async function(req) {
           status = 'failed';
         }
       }
-      await base44.entities.AgentPayment.create({
+      payments.push({
         agent: ARBITER, protocol: 'x402', amount: fee, status, tx_signature,
         memo: `Routed ${l.title} from ${l.seller}`,
       });
     }
+    if (payments.length) await base44.entities.AgentPayment.bulkCreate(payments);
 
     // 2. Seller agents post fresh listings with varied pricing
     let listed = 0;
