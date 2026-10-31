@@ -12,26 +12,28 @@ export default function ShopGrid() {
   const shown = BRANDS.filter((b) => b.name.toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <div className="rounded-3xl border border-border bg-card p-6">
+    <div className="rounded-3xl border border-border bg-card p-4 sm:p-6">
       <div className="mb-1 font-heading text-lg font-semibold">Shop gift cards</div>
       <p className="mb-4 text-sm text-muted-foreground">Pick a brand and buy in one tap. Prices update live when available.</p>
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input className="pl-9" placeholder="Search brands" value={q} onChange={(e) => setQ(e.target.value)} />
+      <div className="sticky top-14 z-[5] -mx-1 mb-4 bg-card px-1 py-2">
+        <Search className="absolute left-4 top-5 h-4 w-4 text-muted-foreground" />
+        <Input className="h-11 pl-9" placeholder="Search brands" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {shown.map((b) => {
           const cost = live[b.name]?.cost ?? b.cost;
           return (
-            <div key={b.name} className="group rounded-2xl border border-border bg-secondary/40 p-4 transition-colors hover:border-primary">
+            <div key={b.name} className="group rounded-2xl border border-border bg-secondary/40 p-3 transition-colors sm:p-4 hover:border-primary">
               <div className="flex items-center justify-between">
                 <span className="font-heading text-lg font-semibold">{b.name}</span>
                 <a href={referralUrl(b.name)} target="_blank" rel="noreferrer" title="Open on Bitrefill">
                   <ExternalLink className="h-4 w-4 text-muted-foreground hover:text-primary" />
                 </a>
               </div>
-              <div className="mt-2 text-sm text-muted-foreground">You pay about {(cost * 100).toFixed(0)}c per $1</div>
-              <div className="text-sm text-primary">Pool credits {(b.rate * 100).toFixed(0)}c per $1</div>
+              <div className="mt-1 flex flex-wrap gap-x-3 text-sm">
+                <span className="text-muted-foreground">Pay {(cost * 100).toFixed(0)}c / $1</span>
+                <span className="text-primary">Pool {(b.rate * 100).toFixed(0)}c / $1</span>
+              </div>
               <BuyCardButton brand={b.name} />
             </div>
           );

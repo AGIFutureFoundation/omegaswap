@@ -8,13 +8,12 @@ const VALUES = [10, 25, 50, 100];
 
 export default function BuyCardButton({ brand }) {
   const qc = useQueryClient();
-  const [value, setValue] = useState(25);
-  const [busy, setBusy] = useState(false);
+  const [busy, setBusy] = useState(null);
   const [error, setError] = useState("");
   const [result, setResult] = useState(null);
 
-  const buy = async () => {
-    setBusy(true);
+  const buy = async (value) => {
+    setBusy(value);
     setError("");
     try {
       const res = await base44.functions.invoke("bitrefillBuy", { brand, value });
@@ -23,7 +22,7 @@ export default function BuyCardButton({ brand }) {
     } catch (e) {
       setError(e?.response?.data?.error || e.message);
     } finally {
-      setBusy(false);
+      setBusy(null);
     }
   };
 
@@ -41,17 +40,14 @@ export default function BuyCardButton({ brand }) {
 
   return (
     <div className="mt-3 space-y-2">
-      <div className="flex gap-2">
+      <div className="grid grid-cols-4 gap-2">
         {VALUES.map((v) => (
-          <button key={v} onClick={() => setValue(v)}
-            className={`flex-1 rounded-lg border px-2 py-1 text-sm ${value === v ? "border-primary text-primary" : "border-border text-muted-foreground"}`}>
-            ${v}
-          </button>
+          <Button key={v} variant="secondary" className="h-11 border border-primary/40 text-primary" disabled={busy !== null} onClick={() => buy(v)}>
+            {busy === v ? <Loader2 className="animate-spin" /> : `$${v}`}
+          </Button>
         ))}
       </div>
-      <Button size="sm" className="w-full" disabled={busy} onClick={buy}>
-        {busy && <Loader2 className="animate-spin" />} Buy ${value} with wallet balance
-      </Button>
+      <div className="text-center text-xs text-muted-foreground">Tap an amount to buy instantly from your wallet balance</div>
       {error && <div className="text-xs text-destructive">{error}</div>}
     </div>
   );
