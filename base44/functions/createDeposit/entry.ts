@@ -13,12 +13,11 @@ export default async function(req) {
     const apiKey = secrets.get('NOWPAYMENTS_API_KEY');
     if (!apiKey) return Response.json({ error: 'Crypto payments are not configured yet' }, { status: 503 });
 
-    // Only accept the app's own origin: a configured APP_URL, or a platform-hosted https origin
+    // Only accept a platform-hosted https origin
     let appUrl = '';
     try {
       const u = new URL(req.headers.get('X-Base44-App-Url') || '');
-      const configured = secrets.get('APP_URL');
-      if (u.protocol === 'https:' && ((configured && u.origin === new URL(configured).origin) || u.hostname.endsWith('.base44.app'))) {
+      if (u.protocol === 'https:' && u.hostname.endsWith('.base44.app')) {
         appUrl = u.origin;
       }
     } catch (_e) { /* invalid URL */ }
