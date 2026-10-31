@@ -1,0 +1,25 @@
+{
+  "name": "AgentPayment",
+  "type": "object",
+  "properties": {
+    "agent": {
+      "type": "string",
+      "description": "Agent that earned the micro payment"
+    },
+    "protocol": {
+      "type": "string",
+      "description": "Payment protocol label, e.g. x402"
+    },
+    "amount": {
+      "type": "number",
+      "description": "USD amount"
+    },
+    "memo": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent",
+    "amount"
+  ]
+}

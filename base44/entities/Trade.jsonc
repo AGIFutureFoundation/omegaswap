@@ -1,0 +1,39 @@
+{
+  "name": "Trade",
+  "type": "object",
+  "properties": {
+    "kind": {
+      "type": "string",
+      "enum": [
+        "swap",
+        "spend"
+      ],
+      "description": "Swap between brands or spend from wallet"
+    },
+    "from_brand": {
+      "type": "string"
+    },
+    "to_brand": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Face amount given up, USD"
+    },
+    "fee": {
+      "type": "number",
+      "description": "Pool fee in USD"
+    },
+    "received": {
+      "type": "number",
+      "description": "Face amount received in the target brand"
+    },
+    "note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "kind",
+    "amount"
+  ]
+}

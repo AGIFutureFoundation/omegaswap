@@ -1,0 +1,22 @@
+{
+  "name": "GiftCard",
+  "type": "object",
+  "properties": {
+    "brand": {
+      "type": "string",
+      "description": "Gift card brand"
+    },
+    "balance": {
+      "type": "number",
+      "description": "Remaining face balance in USD"
+    },
+    "last4": {
+      "type": "string",
+      "description": "Last 4 characters of the card code, for reference only"
+    }
+  },
+  "required": [
+    "brand",
+    "balance"
+  ]
+}
