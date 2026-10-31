@@ -1,0 +1,46 @@
+{
+  "name": "AgentState",
+  "type": "object",
+  "properties": {
+    "key": {
+      "type": "string",
+      "description": "Always 'arbiter'"
+    },
+    "max_ratio": {
+      "type": "number",
+      "description": "Arbiter only considers listings priced below this share of face value"
+    },
+    "runs": {
+      "type": "number"
+    },
+    "rejection_rate": {
+      "type": "number",
+      "description": "Share of proposed deals rejected by risk review in the last run"
+    },
+    "last_adjustment": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "key",
+    "max_ratio"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}

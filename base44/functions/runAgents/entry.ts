@@ -91,8 +91,12 @@ export default async function(req) {
     const { items: open } = await sr.entities.Listing.filter({ status: 'open' }, { sort: '-created_date', limit: 100 });
 
     // 1. Arbiter agent: ASI Cloud picks which underpriced listings to buy (rule-based fallback if it is unavailable)
+    // Self-correcting threshold: learned from how risk review treated the last runs
+    const { items: states } = await sr.entities.AgentState.filter({ key: 'arbiter' }, { limit: 1 });
+    const state = states[0] || await sr.entities.AgentState.create({ key: 'arbiter', max_ratio: 0.9, runs: 0, rejection_rate: 0 });
+    const maxRatio = state.max_ratio ?? 0.9;
     const candidates = open
-      .filter((l) => l.seller !== ARBITER && l.price / l.face_value < 0.9)
+      .filter((l) => l.seller !== ARBITER && l.price / l.face_value < maxRatio)
       .sort((a, b) => a.price / a.face_value - b.price / b.face_value)
       .slice(0, 10);
     const picked = candidates.length ? await askAsi(candidates) : null;
@@ -153,7 +157,17 @@ export default async function(req) {
     }
     if (fresh.length) await sr.entities.Listing.bulkCreate(fresh);
 
-    return Response.json({ bought, listed, profit: r2(profit), ai, jev: jevScored, jevRejected });
+    // Learn: heavy rejections mean "too good to be true" deals, so tighten; no candidates at all means too strict, so loosen
+    const rejRate = reviews.length ? jevRejected / reviews.length : 0;
+    let next = maxRatio;
+    let why = 'no change';
+    if (jevScored && rejRate >= 0.5) { next = Math.max(0.6, maxRatio - 0.02); why = 'tightened: risk review rejected most deals'; }
+    else if (!candidates.length) { next = Math.min(0.95, maxRatio + 0.01); why = 'loosened: no candidate deals found'; }
+    await sr.entities.AgentState.update(state.id, {
+      max_ratio: r2(next), runs: (state.runs || 0) + 1, rejection_rate: r2(rejRate), last_adjustment: why,
+    });
+
+    return Response.json({ bought, listed, profit: r2(profit), ai, jev: jevScored, jevRejected, maxRatio: r2(next), adjustment: why });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
