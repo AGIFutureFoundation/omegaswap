@@ -10,6 +10,7 @@ import Wallet from '@/pages/Wallet';
 import Pool from '@/pages/Pool';
 import Agents from '@/pages/Agents';
 import Market from '@/pages/Market';
+import Console from '@/pages/Console';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -55,6 +56,7 @@ const AuthenticatedApp = () => {
           <Route path="/pool" element={<Pool />} />
           <Route path="/agents" element={<Agents />} />
           <Route path="/market" element={<Market />} />
+          <Route path="/console" element={<Console />} />
         </Route>
       </Route>
       <Route path="*" element={<PageNotFound />} />

@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Wallet, Repeat, Bot, Store, LogOut } from "lucide-react";
+import { Wallet, Repeat, Bot, Store, LogOut, Terminal } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const links = [
@@ -7,6 +7,7 @@ const links = [
   { to: "/pool", label: "Pool", icon: Repeat },
   { to: "/market", label: "Exchange", icon: Store },
   { to: "/agents", label: "Agents", icon: Bot },
+  { to: "/console", label: "Console", icon: Terminal },
 ];
 
 export default function Layout() {

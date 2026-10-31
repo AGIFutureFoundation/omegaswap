@@ -1,0 +1,34 @@
+{
+  "name": "TeamAgent",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Agent name"
+    },
+    "role": {
+      "type": "string",
+      "description": "Role on the team, e.g. Risk Analyst"
+    },
+    "metaprompt": {
+      "type": "string",
+      "description": "System instructions that define how the agent behaves"
+    }
+  },
+  "required": [
+    "name",
+    "role",
+    "metaprompt"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}

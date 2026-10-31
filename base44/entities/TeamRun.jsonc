@@ -1,0 +1,34 @@
+{
+  "name": "TeamRun",
+  "type": "object",
+  "properties": {
+    "agent_id": {
+      "type": "string"
+    },
+    "agent_name": {
+      "type": "string"
+    },
+    "task": {
+      "type": "string"
+    },
+    "output": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "agent_id",
+    "task",
+    "output"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
