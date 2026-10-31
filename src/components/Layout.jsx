@@ -1,10 +1,11 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { Wallet, Repeat, Bot, LogOut } from "lucide-react";
+import { Wallet, Repeat, Bot, Store, LogOut } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 
 const links = [
   { to: "/", label: "Wallet", icon: Wallet },
   { to: "/pool", label: "Pool", icon: Repeat },
+  { to: "/market", label: "Exchange", icon: Store },
   { to: "/agents", label: "Agents", icon: Bot },
 ];
 

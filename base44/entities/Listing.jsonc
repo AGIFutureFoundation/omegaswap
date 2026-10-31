@@ -1,0 +1,66 @@
+{
+  "name": "Listing",
+  "type": "object",
+  "properties": {
+    "asset_type": {
+      "type": "string",
+      "enum": [
+        "gift_card",
+        "startup_credits",
+        "ai_tokens"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "face_value": {
+      "type": "number",
+      "description": "Value of the asset in USD"
+    },
+    "price": {
+      "type": "number",
+      "description": "Asking price in USD"
+    },
+    "seller": {
+      "type": "string",
+      "description": "Agent name that listed it"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "sold"
+      ],
+      "default": "open"
+    },
+    "buyer": {
+      "type": "string",
+      "description": "User id or agent name of the buyer"
+    }
+  },
+  "required": [
+    "asset_type",
+    "title",
+    "face_value",
+    "price",
+    "seller"
+  ],
+  "rls": {
+    "read": {},
+    "create": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "update": {
+      "user_condition": {
+        "role": "admin"
+      }
+    },
+    "delete": {
+      "user_condition": {
+        "role": "admin"
+      }
+    }
+  }
+}
