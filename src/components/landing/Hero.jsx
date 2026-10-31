@@ -22,7 +22,7 @@ export default function Hero() {
       </div>
       <video
         className="mx-auto mt-10 w-full max-w-3xl rounded-3xl border border-border"
-        src="https://media.base44.com/videos/public/6ae63a525fa5fffc7fc2ede8/d14aa4050_OmegaSwap_Video.mp4"
+        src="https://media.base44.com/videos/public/6ae63a525fa5fffc7fc2ede8/d2ce11b20_-4869920067633858561.mp4"
         autoPlay
         muted
         loop
