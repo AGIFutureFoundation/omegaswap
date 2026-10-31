@@ -5,6 +5,17 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+const PRESETS = [
+  { name: "Bitrefill", refill_url: "https://www.bitrefill.com/" },
+  { name: "Reloadly", refill_url: "https://www.reloadly.com/" },
+  { name: "Coinbase", refill_url: "https://www.coinbase.com/" },
+  { name: "PayPal", refill_url: "https://www.paypal.com/" },
+  { name: "Cash App", refill_url: "https://cash.app/" },
+  { name: "Steam", refill_url: "https://store.steampowered.com/steamaccount/addfunds" },
+  { name: "Amazon", refill_url: "https://www.amazon.com/gc" },
+  { name: "OpenAI credits", refill_url: "https://platform.openai.com/settings/organization/billing" },
+];
+
 export default function LinkedApps() {
   const qc = useQueryClient();
   const apps = useQuery({
@@ -53,6 +64,13 @@ export default function LinkedApps() {
           </span>
         </div>
       ))}
+      <div className="mt-4 flex flex-wrap gap-2">
+        {PRESETS.map((p) => (
+          <Button key={p.name} type="button" size="sm" variant="secondary" onClick={() => setForm({ ...form, name: p.name, refill_url: p.refill_url })}>
+            + {p.name}
+          </Button>
+        ))}
+      </div>
       <form onSubmit={add} className="mt-4 grid gap-2 sm:grid-cols-[1fr_120px_1fr_auto]">
         <Input required placeholder="App name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
         <Input required type="number" min="0" step="0.01" placeholder="Balance" value={form.balance} onChange={(e) => setForm({ ...form, balance: e.target.value })} />

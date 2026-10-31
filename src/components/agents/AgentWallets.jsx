@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import OptionSelect from "@/components/ui/option-select";
 
-const CHAINS = ["solana", "base", "polygon", "arbitrum", "ethereum"];
-const AGENTS = ["Arbiter", "Scout", "Broker", "Vendor", "Hermes Scout", "Hermes Courier", "Hermes Sweeper", "Omega Strategist", "Omega Risk", "Omega Executor"];
+const CHAINS = ["solana", "base", "polygon", "arbitrum", "ethereum", "optimism", "avalanche", "bnb"];
+const AGENTS = ["Arbiter", "Scout", "Broker", "Vendor", "Hermes Scout", "Hermes Courier", "Hermes Sweeper", "Hermes Auditor", "Omega Strategist", "Omega Risk", "Omega Executor", "Omega Treasurer", "Omega Liquidity"];
 
 export default function AgentWallets() {
   const qc = useQueryClient();
@@ -31,7 +31,7 @@ export default function AgentWallets() {
         <Link2 className="h-5 w-5 text-primary" /> Agent wallets by chain
       </div>
       <p className="text-sm text-muted-foreground">
-        Give each agent its own payout wallet on Solana, Base, Polygon, Arbitrum or Ethereum. x402 payments are routed to that wallet and labeled with the chain. Only Solana settles on-chain right now; the other chains are recorded as ledger entries.
+        Give each agent its own payout wallet on Solana, Base, Polygon, Arbitrum, Ethereum, Optimism, Avalanche or BNB Chain. x402 payments are routed to that wallet and labeled with the chain. Only Solana settles on-chain right now; the other chains are recorded as ledger entries.
       </p>
       <div className="flex flex-wrap gap-2">
         <OptionSelect label="Agent" className="w-auto" value={agent} onChange={setAgent} options={AGENTS.map((a) => ({ value: a, label: a }))} />

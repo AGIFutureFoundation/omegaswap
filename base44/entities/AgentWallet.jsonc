@@ -13,7 +13,10 @@
         "base",
         "polygon",
         "arbitrum",
-        "ethereum"
+        "ethereum",
+        "optimism",
+        "avalanche",
+        "bnb"
       ],
       "default": "solana"
     },

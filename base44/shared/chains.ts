@@ -1,4 +1,4 @@
-export const CHAINS = ['solana', 'base', 'polygon', 'arbitrum', 'ethereum'];
+export const CHAINS = ['solana', 'base', 'polygon', 'arbitrum', 'ethereum', 'optimism', 'avalanche', 'bnb'];
 
 // Returns a map of agent name -> { chain, address } from the AgentWallet entity.
 export async function loadWallets(sr) {

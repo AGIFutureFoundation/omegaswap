@@ -20,6 +20,16 @@ export default function Hero() {
         <Button asChild size="lg"><Link to="/wallet">Open the app <ArrowRight /></Link></Button>
         <Button asChild size="lg" variant="outline"><Link to="/whitepaper">Read the whitepaper</Link></Button>
       </div>
+      <video
+        className="mx-auto mt-10 w-full max-w-3xl rounded-3xl border border-border"
+        src="https://media.base44.com/videos/public/6ae63a525fa5fffc7fc2ede8/d14aa4050_OmegaSwap_Video.mp4"
+        autoPlay
+        muted
+        loop
+        playsInline
+        controls
+        aria-label="OmegaSwap explainer video"
+      />
     </section>
   );
 }
