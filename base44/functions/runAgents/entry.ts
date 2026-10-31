@@ -28,18 +28,24 @@ const r2 = (n) => Math.round(n * 100) / 100;
 
 // Asks ASI Cloud which candidate deals the Arbiter should buy. Returns a list of ids, or null on any failure.
 async function askAsi(candidates) {
-  const key = secrets.get('ASI_CLOUD_API_KEY') || secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2');
+  const tfKey = secrets.get('TRUEFOUNDRY_API_KEY');
+  const tfBase = secrets.get('TRUEFOUNDRY_BASE_URL');
+  const tfModel = secrets.get('TRUEFOUNDRY_MODEL');
+  const useTf = !!(tfKey && tfBase && tfModel);
+  const key = useTf ? tfKey : (secrets.get('ASI_CLOUD_API_KEY') || secrets.get('OPENAI_API_KEY') || secrets.get('OPENAI_API_KEY_2'));
   if (!key) return null;
+  const url = useTf ? `${tfBase.replace(/\/+$/, '')}/chat/completions` : ASI_URL;
+  const model = useTf ? tfModel : ASI_MODEL;
   const rows = candidates.map((l) => ({
     id: l.id, title: l.title, seller: l.seller, face: l.face_value, price: l.price,
     discount_pct: r2((1 - l.price / l.face_value) * 100),
   }));
   const prompt = `You are the Arbiter trading agent in a marketplace for gift cards, startup credits and AI tokens. You buy underpriced listings and relist them at 97% of face value. Pick at most ${MAX_BUYS} listings to buy, favouring the biggest profit while keeping a mix of assets. Reply with JSON only, like {"buy":["id1","id2"]}.\nListings: ${JSON.stringify(rows)}`;
   try {
-    const res = await fetch(ASI_URL, {
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: ASI_MODEL, messages: [{ role: 'user', content: prompt }], max_tokens: 300, temperature: 0.2 }),
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: prompt }], max_tokens: 300, temperature: 0.2 }),
       signal: AbortSignal.timeout(15000),
     });
     if (!res.ok) return null;
