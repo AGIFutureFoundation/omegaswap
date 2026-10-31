@@ -3,9 +3,10 @@ import { useWalletData } from "@/hooks/useWalletData";
 import { referralUrl, REFERRAL_CODE } from "@/lib/brands";
 import { useLiveRates } from "@/hooks/useLiveRates";
 import SkillCard from "@/components/agents/SkillCard";
+import WalletSetup from "@/components/agents/WalletSetup";
 
 export default function Agents() {
-  const { trades, payments } = useWalletData();
+  const { me, trades, payments } = useWalletData();
   const rates = useLiveRates();
   const feeTotal = (trades.data || []).reduce((s, t) => s + (t.fee || 0), 0);
   const microTotal = (payments.data || []).reduce((s, p) => s + p.amount, 0);
@@ -17,6 +18,7 @@ export default function Agents() {
         <Stat label="Pool fees earned" value={`$${feeTotal.toFixed(2)}`} />
         <Stat label="Agent micro payments (x402 ledger)" value={`$${microTotal.toFixed(4)}`} />
       </div>
+      {me.data?.role === "admin" && <WalletSetup />}
       <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
         <div className="mb-1 font-heading text-lg font-semibold">Spreads right now</div>
