@@ -14,7 +14,8 @@
       "type": "string",
       "enum": [
         "deposit",
-        "purchase"
+        "purchase",
+        "sweep"
       ]
     },
     "memo": {
@@ -22,7 +23,7 @@
     },
     "ref": {
       "type": "string",
-      "description": "Unique reference (deposit or listing id) to prevent double posting"
+      "description": "Unique reference (deposit, listing or card id) to prevent double posting"
     }
   },
   "required": [

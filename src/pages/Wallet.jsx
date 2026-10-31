@@ -3,6 +3,8 @@ import DealFeed from "@/components/wallet/DealFeed";
 import AddCardForm from "@/components/wallet/AddCardForm";
 import SpendPanel from "@/components/wallet/SpendPanel";
 import TopUpCard from "@/components/wallet/TopUpCard";
+import HarnessCard from "@/components/wallet/HarnessCard";
+import LinkedApps from "@/components/wallet/LinkedApps";
 import { useWalletData } from "@/hooks/useWalletData";
 import { deals } from "@/lib/brands";
 
@@ -16,6 +18,7 @@ export default function Wallet() {
     <div className="mx-auto max-w-5xl space-y-6 px-4 py-10">
       <BalanceHero total={total} cardCount={list.length} saved={0} />
       <div className="grid gap-6 md:grid-cols-2">
+        <HarnessCard />
         <div className="rounded-3xl border border-border bg-card p-6">
           <div className="mb-4 font-heading text-lg font-semibold">Your balances</div>
           {cards.isLoading && <div className="text-sm text-muted-foreground">Loading...</div>}
@@ -33,6 +36,7 @@ export default function Wallet() {
         <DealFeed deals={feed} />
         <AddCardForm />
         <SpendPanel cards={list.filter((c) => c.balance > 0)} />
+        <LinkedApps />
       </div>
     </div>
   );

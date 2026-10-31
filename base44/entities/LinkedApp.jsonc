@@ -1,0 +1,33 @@
+{
+  "name": "LinkedApp",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the external wallet or app"
+    },
+    "balance": {
+      "type": "number",
+      "description": "Balance the user reports for it, USD"
+    },
+    "refill_url": {
+      "type": "string",
+      "description": "Link to top up that app"
+    }
+  },
+  "required": [
+    "name",
+    "balance"
+  ],
+  "rls": {
+    "read": {
+      "created_by_id": "{{user.id}}"
+    },
+    "update": {
+      "created_by_id": "{{user.id}}"
+    },
+    "delete": {
+      "created_by_id": "{{user.id}}"
+    }
+  }
+}
