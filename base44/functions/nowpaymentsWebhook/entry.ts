@@ -34,14 +34,19 @@ export default async function(req) {
     if (!deposit) return Response.json({ error: 'Unknown order' }, { status: 404 });
     if (deposit.status === 'confirmed') return Response.json({ ok: true, duplicate: true });
 
-    // Credit the amount we requested, never an amount from the request body
-    await sr.entities.Deposit.update(deposit.id, { status: 'confirmed' });
+    // Atomic claim so repeated webhook deliveries credit only once
+    const claim = await sr.entities.Deposit.updateMany({ id: deposit.id, status: { $ne: 'confirmed' } }, { $set: { status: 'confirmed' } });
+    if (!claim.updated) return Response.json({ ok: true, duplicate: true });
+    // Credit the amount we requested, never an amount from the request body. On failure reopen so the provider retries.
     await sr.entities.LedgerEntry.create({
       user_id: deposit.user_id,
       amount: deposit.amount,
       kind: 'deposit',
       memo: 'Crypto top-up',
       ref: deposit.id,
+    }).catch(async (e) => {
+      await sr.entities.Deposit.update(deposit.id, { status: 'pending' });
+      throw e;
     });
     return Response.json({ ok: true });
   } catch (error) {

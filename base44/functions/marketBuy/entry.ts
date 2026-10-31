@@ -19,14 +19,25 @@ export default async function(req) {
       return Response.json({ error: `Not enough balance. You have $${balance.toFixed(2)}, this costs $${listing.price.toFixed(2)}.` }, { status: 402 });
     }
 
-    await sr.entities.Listing.update(listing.id, { status: 'sold', buyer: user.id });
-    await sr.entities.LedgerEntry.create({
+    // Atomic claim: only one buyer can flip an open listing to sold
+    const claim = await sr.entities.Listing.updateMany({ id: listing.id, status: 'open' }, { $set: { status: 'sold', buyer: user.id } });
+    if (!claim.updated) return Response.json({ error: 'Already sold' }, { status: 409 });
+    const entry = await sr.entities.LedgerEntry.create({
       user_id: user.id,
       amount: -listing.price,
       kind: 'purchase',
       memo: `Bought ${listing.title}`,
       ref: listing.id,
+    }).catch(async (e) => {
+      await sr.entities.Listing.update(listing.id, { status: 'open', buyer: '' });
+      throw e;
     });
+    // Two parallel purchases could both pass the first balance check: undo if this one overdrew
+    if ((await getBalance(base44, user.id)) < 0) {
+      await sr.entities.LedgerEntry.delete(entry.id);
+      await sr.entities.Listing.update(listing.id, { status: 'open', buyer: '' });
+      return Response.json({ error: 'Not enough balance' }, { status: 402 });
+    }
     // Delivered into the buyer's wallet as a balance they own
     await base44.entities.GiftCard.create({ brand: listing.title, balance: listing.face_value });
 

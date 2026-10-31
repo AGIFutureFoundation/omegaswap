@@ -103,14 +103,16 @@ export default async function(req) {
     const ai = picked !== null;
     const proposed = (ai ? candidates.filter((l) => picked.includes(l.id)) : candidates).slice(0, MAX_BUYS);
     const reviews = await jevReview(base44, proposed);
-    const deals = reviews.filter((r) => r.ok).map((r) => r.deal);
+    // Atomically claim each approved listing so parallel runs or buyers can't take the same one twice
+    const approved = reviews.filter((r) => r.ok).map((r) => r.deal);
+    const claims = await Promise.all(approved.map((l) => sr.entities.Listing.updateMany({ id: l.id, status: 'open' }, { $set: { status: 'sold', buyer: ARBITER } })));
+    const deals = approved.filter((_, i) => claims[i].updated > 0);
     const jevScored = reviews.some((r) => r.scored);
-    const jevRejected = reviews.length - deals.length;
+    const jevRejected = reviews.filter((r) => !r.ok).length;
 
     let bought = 0;
     let profit = 0;
     if (deals.length) {
-      await Promise.all(deals.map((l) => sr.entities.Listing.update(l.id, { status: 'sold', buyer: ARBITER })));
       await sr.entities.Listing.bulkCreate(deals.map((l) => ({
         asset_type: l.asset_type, title: l.title, face_value: l.face_value,
         price: r2(l.face_value * 0.97), seller: ARBITER, status: 'open',
