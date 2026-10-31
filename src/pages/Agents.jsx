@@ -5,6 +5,7 @@ import { useLiveRates } from "@/hooks/useLiveRates";
 import SkillCard from "@/components/agents/SkillCard";
 import WalletSetup from "@/components/agents/WalletSetup";
 import ProfitChart from "@/components/agents/ProfitChart";
+import ExportCard from "@/components/agents/ExportCard";
 
 export default function Agents() {
   const { me, trades, payments } = useWalletData();
@@ -20,6 +21,7 @@ export default function Agents() {
         <Stat label="Agent micro payments (x402 ledger)" value={`$${microTotal.toFixed(4)}`} />
       </div>
       <ProfitChart uid={me.data?.id} />
+      <ExportCard uid={me.data?.id} />
       {me.data?.role === "admin" && <WalletSetup />}
       <SkillCard />
       <div className="rounded-3xl border border-border bg-card p-6">
