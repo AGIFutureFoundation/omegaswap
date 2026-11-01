@@ -3,6 +3,7 @@ import { Loader2, LogOut, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
+import Invoices from "@/components/settings/Invoices";
 import { useWalletData } from "@/hooks/useWalletData";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -33,6 +34,7 @@ export default function Settings() {
         <div className="select-text font-medium">{me.data?.email}</div>
         <Button variant="outline" className="mt-4" onClick={() => base44.auth.logout()}><LogOut /> Log out</Button>
       </div>
+      <Invoices />
       <div className="space-y-3 rounded-3xl border border-destructive/40 bg-card p-6">
         <div className="font-heading text-lg font-semibold">Delete account</div>
         <p className="text-sm text-muted-foreground">Permanently delete your account and everything in it.</p>
