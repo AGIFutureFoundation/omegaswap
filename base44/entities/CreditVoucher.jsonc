@@ -1,0 +1,99 @@
+{
+  "name": "CreditVoucher",
+  "type": "object",
+  "properties": {
+    "brand": {
+      "type": "string",
+      "description": "Vendor or brand the voucher is for"
+    },
+    "face_value": {
+      "type": "number",
+      "description": "Face value in USD read from the voucher"
+    },
+    "last4": {
+      "type": "string",
+      "description": "Last 4 characters of the code, for reference only"
+    },
+    "qr_file_uri": {
+      "type": "string",
+      "description": "Private file uri of the uploaded QR image"
+    },
+    "confidence": {
+      "type": "number",
+      "description": "Agent confidence 0 to 1 that the upload is a real voucher"
+    },
+    "action": {
+      "type": "string",
+      "enum": [
+        "use",
+        "swap",
+        "hold"
+      ],
+      "description": "What the credit agent recommends"
+    },
+    "target_brand": {
+      "type": "string",
+      "description": "Brand to swap into when action is swap"
+    },
+    "reason": {
+      "type": "string",
+      "description": "Agent explanation for the recommendation"
+    },
+    "market_note": {
+      "type": "string",
+      "description": "Arbitrage context from open exchange listings"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "review",
+        "added",
+        "dismissed"
+      ],
+      "default": "review"
+    }
+  },
+  "required": [
+    "brand",
+    "face_value"
+  ],
+  "rls": {
+    "create": null,
+    "read": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "update": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    },
+    "delete": {
+      "$or": [
+        {
+          "created_by_id": "{{user.id}}"
+        },
+        {
+          "user_condition": {
+            "role": "admin"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -3,6 +3,7 @@ import MyDashboard from "@/components/wallet/MyDashboard";
 import BalanceHero from "@/components/wallet/BalanceHero";
 import DealFeed from "@/components/wallet/DealFeed";
 import AddCardForm from "@/components/wallet/AddCardForm";
+import QrCredits from "@/components/wallet/QrCredits";
 import SpendPanel from "@/components/wallet/SpendPanel";
 import TopUpCard from "@/components/wallet/TopUpCard";
 import HarnessCard from "@/components/wallet/HarnessCard";
@@ -36,6 +37,7 @@ export default function Wallet() {
           ))}
         </div>
         <AddCardForm />
+        <QrCredits uid={me.data?.id} />
         <SpendPanel cards={list.filter((c) => c.balance > 0)} />
         <TopUpCard />
         <DealFeed deals={feed} />
