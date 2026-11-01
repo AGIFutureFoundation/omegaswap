@@ -5,6 +5,7 @@ import PerformanceSummary from "@/components/console/PerformanceSummary";
 import StrategyCompare from "@/components/console/StrategyCompare";
 import HeartbeatCard from "@/components/console/HeartbeatCard";
 import TeamPipeline from "@/components/console/TeamPipeline";
+import AgentNetwork from "@/components/console/AgentNetwork";
 import EvalPanel from "@/components/console/EvalPanel";
 import ProfitChart from "@/components/agents/ProfitChart";
 import BalanceBreakdown from "@/components/wallet/BalanceBreakdown";
@@ -36,6 +37,7 @@ export default function Console() {
             <AgentForm />
             <RunConsole />
           </div>
+          <AgentNetwork />
           <EvalPanel />
         </TabsContent>
         <TabsContent value="performance" className="mt-6 space-y-6">
